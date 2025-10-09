@@ -1,0 +1,217 @@
+/*
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Permis de Travail {{NUMERO_PERMIS}}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #333;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 3px solid #2c3e50;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      color: #2c3e50;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    .header .numero {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e74c3c;
+    }
+    .section {
+      margin-bottom: 20px;
+      page-break-inside: avoid;
+    }
+    .section-title {
+      background-color: #34495e;
+      color: white;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .info-item {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .info-label {
+      font-weight: bold;
+      color: #2c3e50;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .info-value {
+      color: #555;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .status-VALIDE { background-color: #27ae60; color: white; }
+    .status-EN_COURS { background-color: #3498db; color: white; }
+    .status-SUSPENDU { background-color: #e74c3c; color: white; }
+    .status-CLOTURE { background-color: #95a5a6; color: white; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #34495e;
+      color: white;
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    ul {
+      margin-left: 20px;
+    }
+    li {
+      margin-bottom: 5px;
+    }
+    .footer {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #ddd;
+      text-align: center;
+      font-size: 10px;
+      color: #7f8c8d;
+    }
+    .signature-section {
+      margin-top: 20px;
+      page-break-inside: avoid;
+    }
+    .audit-trail {
+      background-color: #ecf0f1;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+      font-family: monospace;
+      font-size: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>PERMIS DE TRAVAIL HSE</h1>
+    <div class="numero">N° {{NUMERO_PERMIS}}</div>
+    <div style="margin-top: 10px;">
+      <span class="status-badge status-{{STATUT}}">{{STATUT}}</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">INFORMATIONS GÉNÉRALES</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Titre:</span>
+        <span class="info-value">{{TITRE}}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Type de permis:</span>
+        <span class="info-value">{{TYPE_PERMIS}}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Zone:</span>
+        <span class="info-value">{{ZONE}}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Demandeur:</span>
+        <span class="info-value">{{DEMANDEUR}}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Date début:</span>
+        <span class="info-value">{{DATE_DEBUT}}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Date fin:</span>
+        <span class="info-value">{{DATE_FIN}}</span>
+      </div>
+    </div>
+    <div class="info-item" style="grid-column: span 2;">
+      <span class="info-label">Description:</span>
+      <p class="info-value">{{DESCRIPTION}}</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">CONDITIONS PRÉALABLES</div>
+    <ul>
+      {{CONDITIONS}}
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-title">MESURES DE PRÉVENTION</div>
+    <ul>
+      {{MESURES}}
+    </ul>
+  </div>
+
+  <div class="section signature-section">
+    <div class="section-title">APPROBATIONS ET SIGNATURES</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Rôle</th>
+          <th>Nom</th>
+          <th>Statut</th>
+          <th>Date</th>
+          <th>Commentaire</th>
+          <th>Hash Signature</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{APPROBATIONS}}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">PISTE D'AUDIT</div>
+    <div class="audit-trail">
+      Document généré le: {{DATE_GENERATION}}<br>
+      Toutes les signatures sont cryptographiquement sécurisées.<br>
+      Ce document peut être vérifié via l'endpoint /permis/{{NUMERO_PERMIS}}/verify-pdf
+    </div>
+  </div>
+
+  <div class="footer">
+    <p><strong>Document confidentiel - Système de Gestion HSE</strong></p>
+    <p>Ce document est généré automatiquement et contient des signatures électroniques vérifiables.</p>
+  </div>
+</body>
+</html>
+*/

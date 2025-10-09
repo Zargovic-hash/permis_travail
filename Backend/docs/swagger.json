@@ -1,0 +1,268 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Système HSE - Gestion de Permis de Travail",
+    "version": "1.0.0",
+    "description": "API RESTful complète pour la gestion des permis de travail HSE avec authentification JWT, workflow d'approbation et génération de PDF sécurisés.",
+    "contact": {
+      "name": "Support HSE",
+      "email": "support@hse-system.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Serveur de développement"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Utilisateur": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "nom": { "type": "string" },
+          "prenom": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "role": { 
+            "type": "string", 
+            "enum": ["DEMANDEUR", "SUPERVISEUR", "RESP_ZONE", "HSE", "ADMIN"] 
+          },
+          "actif": { "type": "boolean" },
+          "date_creation": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Permis": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "numero_permis": { "type": "string" },
+          "type_permis_id": { "type": "string", "format": "uuid" },
+          "zone_id": { "type": "string", "format": "uuid" },
+          "titre": { "type": "string" },
+          "description": { "type": "string" },
+          "date_debut": { "type": "string", "format": "date-time" },
+          "date_fin": { "type": "string", "format": "date-time" },
+          "demandeur_id": { "type": "string", "format": "uuid" },
+          "statut": {
+            "type": "string",
+            "enum": ["BROUILLON", "EN_ATTENTE", "VALIDE", "EN_COURS", "SUSPENDU", "CLOTURE"]
+          },
+          "conditions_prealables": { "type": "object" },
+          "mesures_prevention": { "type": "object" },
+          "resultat_tests_atmos": { "type": "object" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/inscription": {
+      "post": {
+        "tags": ["Authentification"],
+        "summary": "Créer un nouveau compte utilisateur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["nom", "prenom", "email", "mot_de_passe"],
+                "properties": {
+                  "nom": { "type": "string", "minLength": 2 },
+                  "prenom": { "type": "string", "minLength": 2 },
+                  "email": { "type": "string", "format": "email" },
+                  "mot_de_passe": { "type": "string", "minLength": 8 },
+                  "role": { "type": "string", "enum": ["DEMANDEUR"], "default": "DEMANDEUR" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Utilisateur créé avec succès"
+          }
+        }
+      }
+    },
+    "/auth/connexion": {
+      "post": {
+        "tags": ["Authentification"],
+        "summary": "Se connecter au système",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "mot_de_passe"],
+                "properties": {
+                  "email": { "type": "string" },
+                  "mot_de_passe": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Connexion réussie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "utilisateur": { "$ref": "#/components/schemas/Utilisateur" },
+                        "accessToken": { "type": "string" },
+                        "refreshToken": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/permis": {
+      "get": {
+        "tags": ["Permis"],
+        "summary": "Liste des permis avec filtres",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer" } },
+          { "name": "zone_id", "in": "query", "schema": { "type": "string" } },
+          { "name": "statut", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des permis"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Permis"],
+        "summary": "Créer un nouveau permis",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["type_permis_id", "zone_id", "titre", "date_debut", "date_fin"],
+                "properties": {
+                  "type_permis_id": { "type": "string", "format": "uuid" },
+                  "zone_id": { "type": "string", "format": "uuid" },
+                  "titre": { "type": "string" },
+                  "description": { "type": "string" },
+                  "date_debut": { "type": "string", "format": "date-time" },
+                  "date_fin": { "type": "string", "format": "date-time" },
+                  "conditions_prealables": { "type": "object" },
+                  "mesures_prevention": { "type": "object" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Permis créé avec succès"
+          }
+        }
+      }
+    },
+    "/permis/{id}": {
+      "get": {
+        "tags": ["Permis"],
+        "summary": "Détails d'un permis",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détails du permis"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Permis"],
+        "summary": "Modifier un permis",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Permis modifié"
+          }
+        }
+      }
+    },
+    "/permis/{id}/valider": {
+      "post": {
+        "tags": ["Permis"],
+        "summary": "Valider/Approuver un permis",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "commentaire": { "type": "string" },
+                  "signature_image": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Permis validé"
+          }
+        }
+      }
+    },
+    "/permis/{id}/export/pdf": {
+      "get": {
+        "tags": ["Permis"],
+        "summary": "Exporter le permis en PDF",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF généré",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "hse-permit-system",
+  "version": "1.0.0",
+  "description": "Système de gestion de Permis de Travail HSE",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "migrate": "node migrations/run-migrations.js",
+    "seed": "node migrations/run-seed.js"
+  },
+  "keywords": [
+    "hse",
+    "permis",
+    "sécurité"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1505.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "joi": "^17.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^7.0.9",
+    "pg": "^8.11.3",
+    "puppeteer": "^24.23.0",
+    "sharp": "^0.33.1",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0",
+    "xss-clean": "^0.1.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

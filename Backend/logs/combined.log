@@ -1,0 +1,118 @@
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T10:52:05.331Z"}
+{"level":"info","message":"Environnement: development","timestamp":"2025-10-08T10:52:05.335Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T10:52:21.329Z"}
+{"level":"info","message":"Environnement: development","timestamp":"2025-10-08T10:52:21.333Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T10:52:24.673Z"}
+{"level":"info","message":"Environnement: development","timestamp":"2025-10-08T10:52:24.678Z"}
+{"ip":"::1","level":"info","message":"GET /","timestamp":"2025-10-08T10:54:49.305Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"GET /","timestamp":"2025-10-08T10:54:53.578Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"GET /favicon.ico","timestamp":"2025-10-08T10:54:53.766Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"GET /","timestamp":"2025-10-08T10:55:02.651Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"GET /api","timestamp":"2025-10-08T10:57:37.364Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T11:41:07.600Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T11:41:07.604Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T11:45:51.582Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T11:45:51.586Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T11:46:14.732Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T11:46:14.736Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T11:49:25.022Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T11:49:25.026Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T12:09:35.321Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T12:09:35.325Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T21:19:51.208Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T21:19:51.212Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T21:20:33.466Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T21:20:33.470Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T21:24:06.829Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T21:24:06.834Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T21:31:19.696Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T21:31:19.700Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T21:32:28.181Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T21:32:28.185Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T21:32:30.770Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T21:32:30.774Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T21:32:49.996Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T21:32:50.003Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T21:33:16.714Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T21:33:16.718Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T21:33:48.674Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T21:33:48.678Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T21:36:37.968Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T21:36:37.972Z"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T21:44:06.035Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T21:44:13.382Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T21:44:14.756Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T21:47:31.707Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T21:47:31.714Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T22:00:00.975Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T22:00:00.979Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T22:03:55.027Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T22:03:55.034Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T22:04:41.718Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T22:04:41.723Z"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:05:03.859Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T22:08:06.938Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T22:08:06.942Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T22:10:22.311Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T22:10:22.316Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T22:11:45.907Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T22:11:45.955Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T22:12:44.455Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T22:12:44.459Z"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:12:56.858Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T22:13:15.500Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T22:13:15.504Z"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:13:49.864Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"GET /","timestamp":"2025-10-08T22:15:31.080Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"GET /favicon.ico","timestamp":"2025-10-08T22:15:31.162Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:16:13.453Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:18:27.324Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:19:06.275Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T22:21:50.395Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T22:21:50.400Z"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:22:07.402Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T22:25:09.652Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T22:25:09.657Z"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:25:15.953Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:26:38.552Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"email":"seifouzargovic@gmail.com","level":"info","message":"Registration attempt:","timestamp":"2025-10-08T22:26:38.554Z"}
+{"level":"error","message":"Erreur inscription: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string","stack":"Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string\n    at C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async UtilisateurRepository.findByEmail (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\repositories\\utilisateur.repository.js:50:20)\n    at async AuthService.inscription (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\services\\auth.service.js:10:26)\n    at async inscription (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\controllers\\auth.controller.js:15:22)","timestamp":"2025-10-08T22:26:38.650Z"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:27:11.403Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:28:47.264Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"email":"seifouzargovic@gmail.com","level":"info","message":"Registration attempt:","timestamp":"2025-10-08T22:28:47.266Z"}
+{"level":"error","message":"Erreur inscription: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string","stack":"Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string\n    at C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async UtilisateurRepository.findByEmail (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\repositories\\utilisateur.repository.js:50:20)\n    at async AuthService.inscription (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\services\\auth.service.js:10:26)\n    at async inscription (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\controllers\\auth.controller.js:15:22)","timestamp":"2025-10-08T22:28:47.405Z"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:29:30.252Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:29:40.229Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"email":"seifouzarov@jff.com","level":"info","message":"Registration attempt:","timestamp":"2025-10-08T22:29:40.230Z"}
+{"level":"error","message":"Erreur inscription: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string","stack":"Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string\n    at C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async UtilisateurRepository.findByEmail (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\repositories\\utilisateur.repository.js:50:20)\n    at async AuthService.inscription (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\services\\auth.service.js:10:26)\n    at async inscription (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\controllers\\auth.controller.js:15:22)","timestamp":"2025-10-08T22:29:40.276Z"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:31:01.512Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"email":"seifouzarov@jff.com","level":"info","message":"Registration attempt:","timestamp":"2025-10-08T22:31:01.513Z"}
+{"level":"error","message":"Erreur inscription: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string","stack":"Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string\n    at C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async UtilisateurRepository.findByEmail (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\repositories\\utilisateur.repository.js:50:20)\n    at async AuthService.inscription (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\services\\auth.service.js:10:26)\n    at async inscription (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\controllers\\auth.controller.js:15:22)","timestamp":"2025-10-08T22:31:01.562Z"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:38:22.744Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"email":"seifouzarov@jff.com","level":"info","message":"Registration attempt:","timestamp":"2025-10-08T22:38:22.745Z"}
+{"level":"error","message":"Erreur inscription: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string","stack":"Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string\n    at C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async UtilisateurRepository.findByEmail (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\repositories\\utilisateur.repository.js:50:20)\n    at async AuthService.inscription (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\services\\auth.service.js:10:26)\n    at async inscription (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\controllers\\auth.controller.js:15:22)","timestamp":"2025-10-08T22:38:22.793Z"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:38:58.442Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:39:28.159Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"email":"seifouzarov@jff.com","level":"info","message":"Registration attempt:","timestamp":"2025-10-08T22:39:28.159Z"}
+{"level":"error","message":"Erreur inscription: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string","stack":"Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string\n    at C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\node_modules\\pg-pool\\index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async UtilisateurRepository.findByEmail (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\repositories\\utilisateur.repository.js:50:20)\n    at async AuthService.inscription (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\services\\auth.service.js:10:26)\n    at async inscription (C:\\Users\\ELITE COMPUTER\\Documents\\sites web\\Projets\\6. Permis de travail\\Backend\\src\\controllers\\auth.controller.js:15:22)","timestamp":"2025-10-08T22:39:28.206Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T22:41:07.130Z"}
+{"level":"info","message":"Environnement: undefined","timestamp":"2025-10-08T22:41:07.134Z"}
+{"level":"error","message":"❌ Impossible de se connecter à la base de données:","timestamp":"2025-10-08T22:41:07.180Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T22:41:36.408Z"}
+{"level":"info","message":"Environnement: development","timestamp":"2025-10-08T22:41:36.412Z"}
+{"level":"info","message":"Connexion à la base de données établie","timestamp":"2025-10-08T22:41:36.646Z"}
+{"level":"info","message":"✓ Base de données connectée:","timestamp":"2025-10-08T22:41:36.656Z"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:42:20.965Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"email":"seifouzarov@jff.com","level":"info","message":"Registration attempt:","timestamp":"2025-10-08T22:42:20.968Z"}
+{"level":"info","message":"Connexion à la base de données établie","timestamp":"2025-10-08T22:42:21.028Z"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:44:00.397Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"POST /api/auth/register","timestamp":"2025-10-08T22:44:08.054Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"email":"s@hhd.com","level":"info","message":"Registration attempt:","timestamp":"2025-10-08T22:44:08.055Z"}
+{"level":"info","message":"Connexion à la base de données établie","timestamp":"2025-10-08T22:44:08.113Z"}
+{"ip":"::1","level":"info","message":"GET /api/auth/me","timestamp":"2025-10-08T22:44:45.660Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"ip":"::1","level":"info","message":"POST /api/auth/refresh","timestamp":"2025-10-08T22:44:45.671Z","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"}
+{"level":"info","message":"Connexion à la base de données établie","timestamp":"2025-10-08T22:44:45.728Z"}
+{"level":"info","message":"Serveur HSE démarré sur le port 3000","timestamp":"2025-10-08T22:45:28.161Z"}
+{"level":"info","message":"Environnement: development","timestamp":"2025-10-08T22:45:28.164Z"}
+{"level":"info","message":"Connexion à la base de données établie","timestamp":"2025-10-08T22:45:28.238Z"}
+{"level":"info","message":"✓ Base de données connectée:","timestamp":"2025-10-08T22:45:28.243Z"}
