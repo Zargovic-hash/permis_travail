@@ -1,114 +1,107 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Utilisateur } from '@/types';
-import api from '@/lib/api';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import apiClient from '@/lib/api';
 
-interface AuthContextType {
-  user: Utilisateur | null;
-  token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-}
-
-interface RegisterData {
+interface User {
+  id: string;
   nom: string;
   prenom: string;
   email: string;
-  password: string;
-  telephone?: string;
+  role: 'DEMANDEUR' | 'SUPERVISEUR' | 'RESP_ZONE' | 'HSE' | 'ADMIN';
+  habilitations?: Record<string, any>;
+  signature_image_path?: string | null;
+  actif: boolean;
+  supprime: boolean;
+  anonymise: boolean;
+  date_creation: string;
+  date_modification: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (userData: any) => Promise<void>;
+  logout: () => Promise<void>;
+  hasRole: (...roles: string[]) => boolean;
+  isHSE: () => boolean;
+  isAdmin: () => boolean;
+  isSuperUser: () => boolean;
+  refetchUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<Utilisateur | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response: any = await apiClient.get('/auth/me');
+      setUser(response.utilisateur);
+    } catch (error) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const initAuth = async () => {
-      const storedToken = localStorage.getItem('token');
-      if (storedToken) {
-        try {
-          // Set token in axios defaults before making the request
-          api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-          const { data } = await api.get('/auth/me');
-          setUser(data.utilisateur);
-          setToken(storedToken);
-        } catch (error) {
-          console.error('Auth initialization error:', error);
-          localStorage.removeItem('token');
-          delete api.defaults.headers.common['Authorization'];
-          setToken(null);
-        }
-      }
-      setIsLoading(false);
-    };
-
-    initAuth();
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      fetchCurrentUser();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const login = async (email: string, password: string) => {
-    try {
-      const { data } = await api.post('/auth/login', { email, password });
-      
-      // Store token
-      localStorage.setItem('token', data.token);
-      
-      // Set token in axios defaults
-      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      
-      setToken(data.token);
-      setUser(data.utilisateur);
-    } catch (error: any) {
-      console.error('Login error:', error);
-      throw error;
-    }
+    const response: any = await apiClient.post('/auth/login', { email, password });
+    localStorage.setItem('accessToken', response.token);
+    localStorage.setItem('refreshToken', response.refreshToken || response.refresh_token);
+    setUser(response.utilisateur);
   };
 
-  const register = async (registerData: RegisterData) => {
-    try {
-      const { data } = await api.post('/auth/register', registerData);
-      
-      // Store token
-      localStorage.setItem('token', data.token);
-      
-      // Set token in axios defaults
-      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      
-      setToken(data.token);
-      setUser(data.utilisateur);
-    } catch (error: any) {
-      console.error('Registration error:', error);
-      throw error;
-    }
+  const register = async (userData: any) => {
+    const response: any = await apiClient.post('/auth/register', userData);
+    localStorage.setItem('accessToken', response.token);
+    localStorage.setItem('refreshToken', response.refreshToken || response.refresh_token);
+    setUser(response.utilisateur);
   };
 
   const logout = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
     try {
-      await api.post('/auth/logout');
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
+      await apiClient.post('/auth/logout', { refresh_token: refreshToken });
     } finally {
-      localStorage.removeItem('token');
-      delete api.defaults.headers.common['Authorization'];
-      setToken(null);
+      localStorage.clear();
       setUser(null);
+      window.location.href = '/login';
     }
   };
+
+  const hasRole = (...roles: string[]) => {
+    return user ? roles.includes(user.role) : false;
+  };
+
+  const isHSE = () => hasRole('HSE');
+  const isAdmin = () => hasRole('ADMIN');
+  const isSuperUser = () => hasRole('HSE', 'ADMIN');
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        token,
+        loading,
         login,
-        logout,
         register,
-        isAuthenticated: !!user,
-        isLoading,
+        logout,
+        hasRole,
+        isHSE,
+        isAdmin,
+        isSuperUser,
+        refetchUser: fetchCurrentUser,
       }}
     >
       {children}
@@ -118,8 +111,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth doit être utilisé dans un AuthProvider');
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
 };

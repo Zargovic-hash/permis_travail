@@ -1,110 +1,309 @@
+// ============================================
+// TYPES & INTERFACES - HSE PERMIT SYSTEM
+// ============================================
+
+// ========== ENUMS ==========
 export enum Role {
-  HSE = 'HSE',
-  ADMIN = 'ADMIN',
-  RESP_ZONE = 'RESP_ZONE',
+  DEMANDEUR = 'DEMANDEUR',
   SUPERVISEUR = 'SUPERVISEUR',
-  DEMANDEUR = 'DEMANDEUR'
+  RESP_ZONE = 'RESP_ZONE',
+  HSE = 'HSE',
+  ADMIN = 'ADMIN'
 }
 
-export enum PermitStatus {
+export enum StatutPermis {
   BROUILLON = 'BROUILLON',
   EN_ATTENTE = 'EN_ATTENTE',
-  APPROUVE = 'APPROUVE',
-  REJETE = 'REJETE',
+  VALIDE = 'VALIDE',
   EN_COURS = 'EN_COURS',
   SUSPENDU = 'SUSPENDU',
   CLOTURE = 'CLOTURE'
 }
 
+export enum StatutApprobation {
+  APPROUVE = 'APPROUVE',
+  REFUSE = 'REFUSE',
+  SUSPENDU = 'SUSPENDU'
+}
+
+export enum ActionAudit {
+  INSCRIPTION = 'INSCRIPTION',
+  CONNEXION = 'CONNEXION',
+  CONNEXION_ECHEC = 'CONNEXION_ECHEC',
+  DECONNEXION = 'DECONNEXION',
+  CREATION_PERMIS = 'CREATION_PERMIS',
+  MODIFICATION_PERMIS = 'MODIFICATION_PERMIS',
+  VALIDATION_PERMIS = 'VALIDATION_PERMIS',
+  SUSPENSION_PERMIS = 'SUSPENSION_PERMIS',
+  CLOTURE_PERMIS = 'CLOTURE_PERMIS',
+  SUPPRESSION_UTILISATEUR = 'SUPPRESSION_UTILISATEUR',
+  ANONYMISATION_UTILISATEUR = 'ANONYMISATION_UTILISATEUR',
+  RESET_MDP = 'RESET_MDP',
+  DEMANDE_RESET_MDP = 'DEMANDE_RESET_MDP',
+  EXPORT_PDF_PERMIS = 'EXPORT_PDF_PERMIS',
+  AJOUT_FICHIER_PERMIS = 'AJOUT_FICHIER_PERMIS'
+}
+
+// ========== USER TYPES ==========
 export interface Utilisateur {
   id: string;
   nom: string;
   prenom: string;
   email: string;
   role: Role;
-  telephone?: string;
-  zone_id?: string;
+  habilitations?: Record<string, any>;
+  signature_image_path?: string | null;
   actif: boolean;
-  created_at: string;
-  updated_at: string;
+  supprime: boolean;
+  anonymise: boolean;
+  date_creation: string;
+  date_modification: string;
 }
 
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
+  nom: string;
+  prenom: string;
+  email: string;
+  password: string;
+  telephone?: string;
+  role?: Role;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  token: string;
+  refreshToken: string;
+  utilisateur: Utilisateur;
+}
+
+// ========== PERMIT TYPES ==========
+export interface Permis {
+  id: string;
+  numero_permis: string;
+  type_permis_id: string;
+  type_permis_nom: string;
+  zone_id: string;
+  zone_nom: string;
+  titre: string;
+  description: string;
+  date_debut: string;
+  date_fin: string;
+  demandeur_id: string;
+  demandeur_nom: string;
+  demandeur_prenom: string;
+  statut: StatutPermis;
+  conditions_prealables?: Record<string, any>;
+  mesures_prevention?: Record<string, any>;
+  resultat_tests_atmos?: Record<string, any>;
+  justificatifs?: Record<string, any>;
+  supprime: boolean;
+  date_creation: string;
+  date_modification: string;
+  approbations?: Approbation[];
+}
+
+export interface CreatePermisData {
+  type_permis_id: string;
+  zone_id: string;
+  titre: string;
+  description: string;
+  date_debut: string;
+  date_fin: string;
+  conditions_prealables?: Record<string, any>;
+  mesures_prevention?: Record<string, any>;
+  resultat_tests_atmos?: Record<string, any>;
+}
+
+export interface UpdatePermisData extends Partial<CreatePermisData> {}
+
+export interface ValidationData {
+  commentaire: string;
+  signature_image?: File | string;
+}
+
+export interface SuspensionData {
+  raison: string;
+}
+
+// ========== APPROBATION TYPES ==========
+export interface Approbation {
+  id: string;
+  permis_id: string;
+  utilisateur_id: string;
+  nom: string;
+  prenom: string;
+  role: string;
+  role_app: Role;
+  statut: StatutApprobation;
+  commentaire: string;
+  date_action: string;
+  signature_image_path?: string | null;
+  signature_hash: string;
+}
+
+// ========== ZONE & TYPE TYPES ==========
 export interface Zone {
   id: string;
   nom: string;
-  description?: string;
-  responsable_id?: string;
-  actif: boolean;
+  description: string;
+  responsable_id: string;
+  responsable_nom: string;
+  responsable_prenom: string;
+}
+
+export interface CreateZoneData {
+  nom: string;
+  description: string;
+  responsable_id: string;
 }
 
 export interface TypePermis {
   id: string;
   nom: string;
-  description?: string;
-  couleur?: string;
-  duree_validite_defaut?: number;
-  actif: boolean;
-}
-
-export interface Permis {
-  id: string;
-  numero: string;
-  titre: string;
-  description?: string;
-  type_permis_id: string;
-  zone_id: string;
-  demandeur_id: string;
-  statut: PermitStatus;
-  date_debut: string;
-  date_fin: string;
-  date_debut_effectif?: string;
-  date_fin_effectif?: string;
-  created_at: string;
-  updated_at: string;
-  type_permis?: TypePermis;
-  zone?: Zone;
-  demandeur?: Utilisateur;
-  risques?: Risque[];
-  approbations?: Approbation[];
-  participants?: PermisParticipant[];
-}
-
-export interface Risque {
-  id: string;
-  permis_id: string;
   description: string;
-  mesure_prevention: string;
-  niveau_risque: 'FAIBLE' | 'MOYEN' | 'ELEVE' | 'CRITIQUE';
-  ordre: number;
 }
 
-export interface Approbation {
-  id: string;
-  permis_id: string;
-  approbateur_id: string;
-  role_approbateur: Role;
-  statut: 'EN_ATTENTE' | 'APPROUVE' | 'REJETE';
-  commentaire?: string;
-  signature_image_url?: string;
-  signature_hash?: string;
-  date_action?: string;
-  approbateur?: Utilisateur;
+export interface CreateTypePermisData {
+  nom: string;
+  description: string;
 }
 
-export interface PermisParticipant {
-  id: string;
-  permis_id: string;
-  utilisateur_id: string;
-  role_participant: string;
-  habilitations?: string[];
-  utilisateur?: Utilisateur;
-}
-
-export interface DashboardStats {
+// ========== STATISTICS TYPES ==========
+export interface StatistiquesGlobales {
   total_permis: number;
   permis_actifs: number;
+  permis_valides: number;
+  permis_suspendus: number;
+  permis_clotures: number;
+  permis_brouillons: number;
   permis_en_attente: number;
-  permis_expires_7j: number;
-  permis_par_type: Array<{ type: string; count: number }>;
-  permis_par_statut: Array<{ statut: string; count: number }>;
 }
+
+export interface StatistiqueParZone {
+  zone: string;
+  zone_id: string;
+  nombre_permis: number;
+  actifs: number;
+  clotures: number;
+}
+
+export interface StatistiqueParType {
+  type: string;
+  type_id: string;
+  nombre_permis: number;
+  actifs: number;
+  clotures: number;
+}
+
+export interface StatistiqueParMois {
+  mois: string;
+  nombre_permis: number;
+}
+
+export interface Statistiques {
+  statistiques_globales: StatistiquesGlobales;
+  par_zone: StatistiqueParZone[];
+  par_type: StatistiqueParType[];
+  par_mois: StatistiqueParMois[];
+  temps_approbation_moyen: number;
+}
+
+// ========== AUDIT LOG TYPES ==========
+export interface AuditLog {
+  id: number;
+  action: ActionAudit;
+  utilisateur_id?: string | null;
+  cible_table: string;
+  cible_id: string;
+  payload: Record<string, any>;
+  ip_client: string;
+  date_action: string;
+}
+
+export interface AuditLogFilters {
+  utilisateur_id?: string;
+  action?: ActionAudit;
+  cible_table?: string;
+  date_debut?: string;
+  date_fin?: string;
+  page?: number;
+  limit?: number;
+}
+
+// ========== API RESPONSE TYPES ==========
+export interface ApiResponse<T = any> {
+  success: boolean;
+  message?: string;
+  data?: T;
+  error?: string;
+}
+
+export interface PaginatedResponse<T = any> {
+  success: boolean;
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalCount: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+}
+
+// ========== FILTER TYPES ==========
+export interface PermisFilters {
+  zone_id?: string;
+  type_permis_id?: string;
+  statut?: StatutPermis;
+  demandeur_id?: string;
+  date_debut?: string;
+  date_fin?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface UtilisateurFilters {
+  role?: Role;
+  actif?: boolean;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+// ========== FILE UPLOAD TYPES ==========
+export interface FileUploadResponse {
+  success: boolean;
+  file_path: string;
+  file_name: string;
+  file_size: number;
+}
+
+// ========== NOTIFICATION TYPES ==========
+export interface Notification {
+  id: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  title: string;
+  message: string;
+  read: boolean;
+  date: string;
+  action_url?: string;
+}
+
+// ========== FORM STEP TYPES ==========
+export interface FormStep {
+  id: number;
+  label: string;
+  description: string;
+  isValid: boolean;
+  isCompleted: boolean;
+}
+
+// ========== EXPORT ==========
+export type { };

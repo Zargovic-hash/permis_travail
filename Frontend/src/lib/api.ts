@@ -1,32 +1,30 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
-export const api = axios.create({
-  baseURL: API_BASE_URL,
+const apiClient = axios.create({
+  baseURL: API_URL,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
 });
 
-// Intercepteur pour ajouter le token JWT
-api.interceptors.request.use(
+// Request interceptor - add token
+apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Intercepteur pour gérer les erreurs et le refresh token
-api.interceptors.response.use(
-  (response) => response,
+// Response interceptor - handle refresh token
+apiClient.interceptors.response.use(
+  (response) => response.data,
   async (error) => {
     const originalRequest = error.config;
 
@@ -34,19 +32,18 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const { data } = await axios.post(
-          `${API_BASE_URL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
-        
-        localStorage.setItem('token', data.token);
+        const refreshToken = localStorage.getItem('refreshToken');
+        const { data } = await axios.post(`${API_URL}/auth/refresh`, {
+          refresh_token: refreshToken,
+        });
+
+        localStorage.setItem('accessToken', data.token);
         originalRequest.headers.Authorization = `Bearer ${data.token}`;
-        
-        return api(originalRequest);
+
+        return apiClient(originalRequest);
       } catch (refreshError) {
-        localStorage.removeItem('token');
-        window.location.href = '/auth/login';
+        localStorage.clear();
+        window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }
@@ -55,4 +52,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default apiClient;
