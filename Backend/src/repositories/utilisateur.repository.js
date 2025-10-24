@@ -12,26 +12,31 @@ class UtilisateurRepository {
 
     if (role) {
       paramCount++;
-      query += ` AND role = ${paramCount}`;
+      query += ` AND role = $${paramCount}`;
       params.push(role);
     }
 
     if (actif !== undefined) {
       paramCount++;
-      query += ` AND actif = ${paramCount}`;
+      query += ` AND actif = $${paramCount}`;
       params.push(actif);
     }
 
+    // ✅ FIX: Correction requête search (éviter duplication paramètres)
     if (search) {
       paramCount++;
-      query += ` AND (nom ILIKE ${paramCount} OR prenom ILIKE ${paramCount} OR email ILIKE ${paramCount})`;
-      params.push(`%${search}%`);
+      const searchPattern = `%${search}%`;
+      query += ` AND (nom ILIKE $${paramCount} OR prenom ILIKE $${paramCount} OR email ILIKE $${paramCount})`;
+      params.push(searchPattern);
     }
 
-    const countResult = await pool.query(query.replace('SELECT *', 'SELECT COUNT(*)'), params);
+    const countResult = await pool.query(
+      query.replace('SELECT *', 'SELECT COUNT(*)'),
+      params
+    );
     const totalCount = parseInt(countResult.rows[0].count);
 
-    query += ` ORDER BY date_creation DESC LIMIT ${paramCount + 1} OFFSET ${paramCount + 2}`;
+    query += ` ORDER BY date_creation DESC LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}`;
     params.push(limit, offset);
 
     const result = await pool.query(query, params);
@@ -75,7 +80,7 @@ class UtilisateurRepository {
     Object.keys(data).forEach(key => {
       if (key !== 'id' && key !== 'mot_de_passe' && data[key] !== undefined) {
         paramCount++;
-        fields.push(`${key} = ${paramCount}`);
+        fields.push(`${key} = $${paramCount}`);
         values.push(typeof data[key] === 'object' ? JSON.stringify(data[key]) : data[key]);
       }
     });
@@ -83,11 +88,11 @@ class UtilisateurRepository {
     if (fields.length === 0) return this.findById(id);
 
     paramCount++;
-    fields.push(`date_modification = ${paramCount}`);
+    fields.push(`date_modification = $${paramCount}`);
     values.push(new Date());
 
     values.push(id);
-    const query = `UPDATE utilisateurs SET ${fields.join(', ')} WHERE id = ${paramCount + 1} RETURNING *`;
+    const query = `UPDATE utilisateurs SET ${fields.join(', ')} WHERE id = $${paramCount + 1} RETURNING *`;
     
     const result = await pool.query(query, values);
     return result.rows[0];

@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken, requireRole } = require('../middlewares/auth.middleware');
-const { execSync } = require('child_process');
+const pool = require('../config/database');
 const path = require('path');
+const fs = require('fs').promises;
 
 router.use(authenticateToken);
 router.use(requireRole('ADMIN'));
@@ -16,8 +17,12 @@ router.post('/seed', async (req, res, next) => {
       });
     }
 
+    // FIX: Utiliser pool.query au lieu de execSync (sécurité)
     const seedPath = path.join(__dirname, '../../migrations/002_seed_data.sql');
-    execSync(`psql ${process.env.DATABASE_URL} < ${seedPath}`);
+    const seedSQL = await fs.readFile(seedPath, 'utf8');
+    
+    // Exécuter le SQL directement via PostgreSQL
+    await pool.query(seedSQL);
 
     res.json({
       success: true,

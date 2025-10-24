@@ -1,0 +1,118 @@
+[
+  {
+    "table": "utilisateurs",
+    "columns": [
+      { "name": "id", "type": "uuid", "nullable": "NO" },
+      { "name": "nom", "type": "character varying", "nullable": "NO" },
+      { "name": "prenom", "type": "character varying", "nullable": "NO" },
+      { "name": "email", "type": "character varying", "nullable": "NO" },
+      { "name": "mot_de_passe_hash", "type": "character varying", "nullable": "NO" },
+      { "name": "role", "type": "character varying", "nullable": "NO" },
+      { "name": "signature_image_path", "type": "character varying", "nullable": "YES" },
+      { "name": "habilitations", "type": "jsonb", "nullable": "YES" },
+      { "name": "actif", "type": "boolean", "nullable": "YES" },
+      { "name": "supprime", "type": "boolean", "nullable": "YES" },
+      { "name": "anonymise", "type": "boolean", "nullable": "YES" },
+      { "name": "date_creation", "type": "timestamp without time zone", "nullable": "YES" },
+      { "name": "date_modification", "type": "timestamp without time zone", "nullable": "YES" }
+    ]
+  },
+  {
+    "table": "zones",
+    "columns": [
+      { "name": "id", "type": "uuid", "nullable": "NO" },
+      { "name": "responsable_id", "type": "uuid", "nullable": "YES" },
+      { "name": "nom", "type": "character varying", "nullable": "NO" },
+      { "name": "description", "type": "text", "nullable": "YES" }
+    ]
+  },
+  {
+    "table": "types_permis",
+    "columns": [
+      { "name": "id", "type": "uuid", "nullable": "NO" },
+      { "name": "nom", "type": "character varying", "nullable": "NO" },
+      { "name": "description", "type": "text", "nullable": "YES" }
+    ]
+  },
+  {
+    "table": "permis",
+    "columns": [
+      { "name": "id", "type": "uuid", "nullable": "NO" },
+      { "name": "type_permis_id", "type": "uuid", "nullable": "YES" },
+      { "name": "zone_id", "type": "uuid", "nullable": "YES" },
+      { "name": "demandeur_id", "type": "uuid", "nullable": "YES" },
+      { "name": "numero_permis", "type": "character varying", "nullable": "NO" },
+      { "name": "titre", "type": "character varying", "nullable": "NO" },
+      { "name": "description", "type": "text", "nullable": "YES" },
+      { "name": "statut", "type": "character varying", "nullable": "YES" },
+      { "name": "date_debut", "type": "timestamp without time zone", "nullable": "NO" },
+      { "name": "date_fin", "type": "timestamp without time zone", "nullable": "NO" },
+      { "name": "justificatifs", "type": "jsonb", "nullable": "YES" },
+      { "name": "conditions_prealables", "type": "jsonb", "nullable": "YES" },
+      { "name": "mesures_prevention", "type": "jsonb", "nullable": "YES" },
+      { "name": "resultat_tests_atmos", "type": "jsonb", "nullable": "YES" },
+      { "name": "supprime", "type": "boolean", "nullable": "YES" },
+      { "name": "date_creation", "type": "timestamp without time zone", "nullable": "YES" },
+      { "name": "date_modification", "type": "timestamp without time zone", "nullable": "YES" }
+    ]
+  },
+  {
+    "table": "participants_permis",
+    "columns": [
+      { "name": "permis_id", "type": "uuid", "nullable": "NO" },
+      { "name": "utilisateur_id", "type": "uuid", "nullable": "NO" },
+      { "name": "role_operationnel", "type": "character varying", "nullable": "YES" },
+      { "name": "habilitations", "type": "jsonb", "nullable": "YES" }
+    ]
+  },
+  {
+    "table": "approbations",
+    "columns": [
+      { "name": "id", "type": "uuid", "nullable": "NO" },
+      { "name": "permis_id", "type": "uuid", "nullable": "YES" },
+      { "name": "utilisateur_id", "type": "uuid", "nullable": "YES" },
+      { "name": "role_app", "type": "character varying", "nullable": "NO" },
+      { "name": "statut", "type": "character varying", "nullable": "NO" },
+      { "name": "signature_image_path", "type": "text", "nullable": "YES" },
+      { "name": "signature_hash", "type": "text", "nullable": "YES" },
+      { "name": "commentaire", "type": "text", "nullable": "YES" },
+      { "name": "date_action", "type": "timestamp without time zone", "nullable": "YES" }
+    ]
+  },
+  {
+    "table": "audit_logs",
+    "columns": [
+      { "name": "id", "type": "bigint", "nullable": "NO" },
+      { "name": "utilisateur_id", "type": "uuid", "nullable": "YES" },
+      { "name": "cible_id", "type": "uuid", "nullable": "YES" },
+      { "name": "cible_table", "type": "character varying", "nullable": "YES" },
+      { "name": "action", "type": "character varying", "nullable": "NO" },
+      { "name": "payload", "type": "jsonb", "nullable": "YES" },
+      { "name": "ip_client", "type": "character varying", "nullable": "YES" },
+      { "name": "immutable", "type": "boolean", "nullable": "YES" },
+      { "name": "date_action", "type": "timestamp without time zone", "nullable": "YES" }
+    ]
+  },
+  {
+    "table": "tokens_reset_mdp",
+    "columns": [
+      { "name": "id", "type": "uuid", "nullable": "NO" },
+      { "name": "utilisateur_id", "type": "uuid", "nullable": "YES" },
+      { "name": "token", "type": "character varying", "nullable": "NO" },
+      { "name": "date_expiration", "type": "timestamp without time zone", "nullable": "NO" },
+      { "name": "utilise", "type": "boolean", "nullable": "YES" },
+      { "name": "date_creation", "type": "timestamp without time zone", "nullable": "YES" }
+    ]
+  },
+  {
+    "table": "refresh_tokens",
+    "columns": [
+      { "name": "id", "type": "uuid", "nullable": "NO" },
+      { "name": "utilisateur_id", "type": "uuid", "nullable": "YES" },
+      { "name": "token", "type": "character varying", "nullable": "NO" },
+      { "name": "date_expiration", "type": "timestamp without time zone", "nullable": "NO" },
+      { "name": "actif", "type": "boolean", "nullable": "YES" },
+      { "name": "date_creation", "type": "timestamp without time zone", "nullable": "YES" }
+    ]
+  }
+]

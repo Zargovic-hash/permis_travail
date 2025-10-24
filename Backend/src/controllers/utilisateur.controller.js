@@ -7,18 +7,25 @@ class UtilisateurController {
     try {
       const { page = 1, limit = 10, role, actif, search } = req.query;
       
-      const filters = { role, actif, search };
-      const { data, totalCount } = await utilisateurRepository.findAll(filters, { page, limit });
+      const filters = {};
+      if (role) filters.role = role;
+      if (actif !== undefined && actif !== '') filters.actif = actif === 'true';
+      if (search) filters.search = search;
+      
+      const { data, totalCount } = await utilisateurRepository.findAll(filters, { page: parseInt(page), limit: parseInt(limit) });
       
       // Remove password hashes
       data.forEach(u => delete u.mot_de_passe_hash);
       
       res.json({
         success: true,
-        data,
-        pagination: getPaginationMeta(page, limit, totalCount)
+        data: {
+          data,
+          pagination: getPaginationMeta(parseInt(page), parseInt(limit), totalCount)
+        }
       });
     } catch (error) {
+      console.error('Erreur liste utilisateurs:', error);
       next(error);
     }
   }

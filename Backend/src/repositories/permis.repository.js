@@ -22,45 +22,47 @@ class PermisRepository {
 
     if (zone_id) {
       paramCount++;
-      query += ` AND p.zone_id = ${paramCount}`;
+      query += ` AND p.zone_id = $${paramCount}`;
       params.push(zone_id);
     }
 
     if (type_permis_id) {
       paramCount++;
-      query += ` AND p.type_permis_id = ${paramCount}`;
+      query += ` AND p.type_permis_id = $${paramCount}`;
       params.push(type_permis_id);
     }
 
     if (statut) {
       paramCount++;
-      query += ` AND p.statut = ${paramCount}`;
+      query += ` AND p.statut = $${paramCount}`;
       params.push(statut);
     }
 
     if (demandeur_id) {
       paramCount++;
-      query += ` AND p.demandeur_id = ${paramCount}`;
+      query += ` AND p.demandeur_id = $${paramCount}`;
       params.push(demandeur_id);
     }
 
     if (date_debut) {
       paramCount++;
-      query += ` AND p.date_debut >= ${paramCount}`;
+      query += ` AND p.date_debut >= $${paramCount}`;
       params.push(date_debut);
     }
 
     if (date_fin) {
       paramCount++;
-      query += ` AND p.date_fin <= ${paramCount}`;
+      query += ` AND p.date_fin <= $${paramCount}`;
       params.push(date_fin);
     }
 
+    // Requête pour compter le total
     const countQuery = query.replace(/SELECT p\.\*.*FROM/, 'SELECT COUNT(*) FROM');
     const countResult = await pool.query(countQuery, params);
     const totalCount = parseInt(countResult.rows[0].count);
 
-    query += ` ORDER BY p.date_creation DESC LIMIT ${paramCount + 1} OFFSET ${paramCount + 2}`;
+    // Ajouter pagination
+    query += ` ORDER BY p.date_creation DESC LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}`;
     params.push(limit, offset);
 
     const result = await pool.query(query, params);
@@ -117,7 +119,7 @@ class PermisRepository {
     Object.keys(data).forEach(key => {
       if (key !== 'id' && data[key] !== undefined) {
         paramCount++;
-        fields.push(`${key} = ${paramCount}`);
+        fields.push(`${key} = $${paramCount}`);
         const value = ['conditions_prealables', 'mesures_prevention', 'resultat_tests_atmos', 'justificatifs'].includes(key)
           ? JSON.stringify(data[key])
           : data[key];
@@ -128,11 +130,11 @@ class PermisRepository {
     if (fields.length === 0) return this.findById(id);
 
     paramCount++;
-    fields.push(`date_modification = ${paramCount}`);
+    fields.push(`date_modification = $${paramCount}`);
     values.push(new Date());
 
     values.push(id);
-    const query = `UPDATE permis SET ${fields.join(', ')} WHERE id = ${paramCount + 1} RETURNING *`;
+    const query = `UPDATE permis SET ${fields.join(', ')} WHERE id = $${paramCount + 1} RETURNING *`;
     
     const result = await pool.query(query, values);
     return result.rows[0];

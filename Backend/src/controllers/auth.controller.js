@@ -1,12 +1,13 @@
+// auth.controller.js
 const authService = require('../services/auth.service');
 const logger = require('../utils/logger');
+const axios = require('axios');
 
 class AuthController {
   async inscription(req, res, next) {
     try {
       logger.info('Registration attempt:', { email: req.body.email });
       
-      // AJOUT : Support pour "password" ET "mot_de_passe"
       const userData = {
         ...req.body,
         mot_de_passe: req.body.password || req.body.mot_de_passe
@@ -14,11 +15,11 @@ class AuthController {
       
       const result = await authService.inscription(userData, req.ip);
       
-      // Frontend expects: { token, utilisateur }
       res.status(201).json({
         success: true,
         message: 'Inscription réussie',
         token: result.accessToken,
+        refreshToken: result.refreshToken,
         utilisateur: result.utilisateur
       });
     } catch (error) {
@@ -33,7 +34,6 @@ class AuthController {
 
   async connexion(req, res, next) {
     try {
-      // Support both 'password' and 'mot_de_passe' fields
       const { email, mot_de_passe, password } = req.body;
       const pwd = password || mot_de_passe;
       
@@ -41,11 +41,11 @@ class AuthController {
       
       const result = await authService.connexion(email, pwd, req.ip);
       
-      // Frontend expects: { token, utilisateur }
       res.json({
         success: true,
         message: 'Connexion réussie',
         token: result.accessToken,
+        refreshToken: result.refreshToken,
         utilisateur: result.utilisateur
       });
     } catch (error) {
@@ -60,6 +60,14 @@ class AuthController {
   async refresh(req, res, next) {
     try {
       const { refresh_token } = req.body;
+      
+      if (!refresh_token) {
+        return res.status(400).json({
+          success: false,
+          message: 'Refresh token manquant'
+        });
+      }
+      
       const result = await authService.refreshAccessToken(refresh_token);
       
       res.json({
@@ -67,9 +75,10 @@ class AuthController {
         token: result.accessToken
       });
     } catch (error) {
+      logger.error('Erreur refresh token:', error);
       res.status(401).json({
         success: false,
-        message: error.message
+        message: error.message || 'Refresh token invalide'
       });
     }
   }
@@ -84,26 +93,36 @@ class AuthController {
         message: 'Déconnexion réussie'
       });
     } catch (error) {
-      next(error);
+      logger.error('Erreur déconnexion:', error);
+      res.json({
+        success: true,
+        message: 'Déconnexion réussie'
+      });
     }
   }
 
   async getCurrentUser(req, res, next) {
     try {
-      // This is called by AuthContext on initialization
       if (!req.user) {
+        logger.warn('getCurrentUser called without authenticated user');
         return res.status(401).json({
           success: false,
           message: 'Non authentifié'
         });
       }
       
+      const { mot_de_passe_hash, ...safeUser } = req.user;
+      
       res.json({
         success: true,
-        utilisateur: req.user
+        utilisateur: safeUser
       });
     } catch (error) {
-      next(error);
+      logger.error('Erreur getCurrentUser:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erreur serveur'
+      });
     }
   }
 
