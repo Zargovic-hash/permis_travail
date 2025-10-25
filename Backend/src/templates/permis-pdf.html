@@ -7,6 +7,7 @@
   <style>
     @page {
       margin: 20mm 15mm;
+      size: A4;
     }
     
     * {
@@ -16,157 +17,268 @@
     }
     
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: 'Arial', 'Helvetica', sans-serif;
       font-size: 11pt;
-      line-height: 1.4;
-      color: #333;
+      line-height: 1.5;
+      color: #1f2937;
+      background: white;
     }
     
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+    
+    /* Header */
     .header {
       text-align: center;
-      border-bottom: 3px solid #2563eb;
-      padding-bottom: 15px;
-      margin-bottom: 20px;
+      border-bottom: 4px solid #2563eb;
+      padding-bottom: 20px;
+      margin-bottom: 25px;
+      background: linear-gradient(to bottom, #eff6ff, white);
+      padding-top: 15px;
     }
     
     .header h1 {
-      color: #2563eb;
-      font-size: 24pt;
-      margin-bottom: 5px;
+      color: #1e40af;
+      font-size: 26pt;
+      font-weight: bold;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
     
     .header .numero {
-      font-size: 14pt;
+      font-size: 16pt;
       font-weight: bold;
-      color: #1e40af;
+      color: #2563eb;
+      background: white;
+      display: inline-block;
+      padding: 8px 20px;
+      border-radius: 8px;
+      border: 2px solid #2563eb;
     }
     
+    /* Sections */
     .section {
-      margin-bottom: 20px;
+      margin-bottom: 25px;
       page-break-inside: avoid;
     }
     
     .section-title {
-      background-color: #dbeafe;
-      padding: 8px 12px;
+      background: linear-gradient(to right, #dbeafe, #bfdbfe);
+      padding: 10px 15px;
       font-size: 13pt;
       font-weight: bold;
       color: #1e40af;
-      border-left: 4px solid #2563eb;
-      margin-bottom: 10px;
+      border-left: 5px solid #2563eb;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
+    /* Info Grid */
     .info-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 15px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
     }
     
     .info-item {
-      border: 1px solid #e5e7eb;
-      padding: 10px;
-      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      padding: 12px;
+      border-radius: 6px;
+      background: #f9fafb;
     }
     
     .info-label {
       font-size: 9pt;
       color: #6b7280;
       text-transform: uppercase;
-      margin-bottom: 3px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
     }
     
     .info-value {
       font-size: 11pt;
       font-weight: bold;
       color: #111827;
+      word-wrap: break-word;
     }
     
+    /* Description Box */
     .description-box {
-      background-color: #f9fafb;
-      border: 1px solid #e5e7eb;
-      padding: 12px;
-      border-radius: 4px;
-      margin-top: 10px;
+      background: #f0f9ff;
+      border: 2px solid #bfdbfe;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 12px;
     }
     
+    .description-box p {
+      margin-top: 8px;
+      line-height: 1.6;
+      color: #374151;
+    }
+    
+    /* Lists */
     .list-section ul {
       list-style: none;
-      padding-left: 0;
+      padding: 0;
+      margin: 0;
     }
     
     .list-section li {
-      padding: 8px 12px;
-      margin-bottom: 6px;
-      background-color: #f0fdf4;
-      border-left: 3px solid #10b981;
-      border-radius: 3px;
+      padding: 10px 15px;
+      margin-bottom: 8px;
+      background: #f0fdf4;
+      border-left: 4px solid #10b981;
+      border-radius: 4px;
+      line-height: 1.6;
     }
     
     .list-section li strong {
       color: #047857;
+      font-weight: 600;
     }
     
+    /* Table */
     .approvals-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
+      margin-top: 12px;
+      font-size: 10pt;
+    }
+    
+    .approvals-table thead {
+      background: #f3f4f6;
     }
     
     .approvals-table th {
-      background-color: #f3f4f6;
-      padding: 10px;
+      padding: 12px 10px;
       text-align: left;
-      font-size: 10pt;
+      font-weight: 600;
+      color: #374151;
       border-bottom: 2px solid #d1d5db;
+      text-transform: uppercase;
+      font-size: 9pt;
+      letter-spacing: 0.5px;
     }
     
     .approvals-table td {
       padding: 10px;
       border-bottom: 1px solid #e5e7eb;
-      font-size: 10pt;
+      vertical-align: top;
+      color: #4b5563;
     }
     
+    .approvals-table tbody tr:hover {
+      background: #f9fafb;
+    }
+    
+    .approvals-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    /* Status Badges */
     .status-badge {
       display: inline-block;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 9pt;
+      padding: 5px 14px;
+      border-radius: 16px;
+      font-size: 10pt;
       font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     
-    .status-brouillon { background-color: #f3f4f6; color: #374151; }
-    .status-attente { background-color: #fef3c7; color: #92400e; }
-    .status-valide { background-color: #dbeafe; color: #1e40af; }
-    .status-cours { background-color: #dcfce7; color: #166534; }
-    .status-suspendu { background-color: #fee2e2; color: #991b1b; }
-    .status-cloture { background-color: #f3f4f6; color: #4b5563; }
+    .status-brouillon {
+      background-color: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
     
+    .status-attente {
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fbbf24;
+    }
+    
+    .status-valide {
+      background-color: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #60a5fa;
+    }
+    
+    .status-cours {
+      background-color: #dcfce7;
+      color: #166534;
+      border: 1px solid #4ade80;
+    }
+    
+    .status-suspendu {
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #f87171;
+    }
+    
+    .status-cloture {
+      background-color: #e5e7eb;
+      color: #1f2937;
+      border: 1px solid #9ca3af;
+    }
+    
+    /* Footer */
     .footer {
-      margin-top: 30px;
-      padding-top: 15px;
-      border-top: 2px solid #e5e7eb;
+      margin-top: 35px;
+      padding-top: 20px;
+      border-top: 3px double #d1d5db;
       text-align: center;
       font-size: 9pt;
       color: #6b7280;
     }
     
+    .footer p {
+      margin-bottom: 6px;
+    }
+    
+    .footer strong {
+      color: #374151;
+    }
+    
+    /* Watermark */
     .watermark {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) rotate(-45deg);
-      font-size: 80pt;
-      opacity: 0.05;
+      font-size: 90pt;
+      font-weight: bold;
+      opacity: 0.03;
       color: #2563eb;
       z-index: -1;
       pointer-events: none;
+      white-space: nowrap;
     }
     
+    /* Print Styles */
     @media print {
       body {
         print-color-adjust: exact;
         -webkit-print-color-adjust: exact;
+      }
+      
+      .section {
+        page-break-inside: avoid;
+      }
+    }
+    
+    /* Responsive adjustments for PDF generation */
+    @media screen and (max-width: 800px) {
+      .info-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -174,96 +286,107 @@
 <body>
   <div class="watermark">PERMIS HSE</div>
   
-  <!-- Header -->
-  <div class="header">
-    <h1>PERMIS DE TRAVAIL HSE</h1>
-    <div class="numero">{{NUMERO_PERMIS}}</div>
-  </div>
-  
-  <!-- Informations Générales -->
-  <div class="section">
-    <div class="section-title">INFORMATIONS GÉNÉRALES</div>
-    <div class="info-grid">
-      <div class="info-item">
-        <div class="info-label">Titre</div>
-        <div class="info-value">{{TITRE}}</div>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Permis de Travail HSE</h1>
+      <div class="numero">{{NUMERO_PERMIS}}</div>
+    </div>
+    
+    <!-- Informations Générales -->
+    <div class="section">
+      <div class="section-title">📋 Informations Générales</div>
+      
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Titre du Permis</div>
+          <div class="info-value">{{TITRE}}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Type de Permis</div>
+          <div class="info-value">{{TYPE_PERMIS}}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Zone de Travail</div>
+          <div class="info-value">{{ZONE}}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Demandeur</div>
+          <div class="info-value">{{DEMANDEUR}}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Date de Début</div>
+          <div class="info-value">{{DATE_DEBUT}}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Date de Fin</div>
+          <div class="info-value">{{DATE_FIN}}</div>
+        </div>
       </div>
-      <div class="info-item">
-        <div class="info-label">Type de Permis</div>
-        <div class="info-value">{{TYPE_PERMIS}}</div>
+      
+      <div class="info-item" style="margin-top: 12px;">
+        <div class="info-label">Statut Actuel</div>
+        <div style="margin-top: 6px;">
+          <span class="status-badge status-{{STATUT_CLASS}}">{{STATUT}}</span>
+        </div>
       </div>
-      <div class="info-item">
-        <div class="info-label">Zone</div>
-        <div class="info-value">{{ZONE}}</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label">Demandeur</div>
-        <div class="info-value">{{DEMANDEUR}}</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label">Date de Début</div>
-        <div class="info-value">{{DATE_DEBUT}}</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label">Date de Fin</div>
-        <div class="info-value">{{DATE_FIN}}</div>
+      
+      <div class="description-box">
+        <div class="info-label">Description des Travaux</div>
+        <p>{{DESCRIPTION}}</p>
       </div>
     </div>
     
-    <div class="info-item" style="grid-column: 1 / -1;">
-      <div class="info-label">Statut</div>
-      <span class="status-badge status-{{STATUT}}">{{STATUT}}</span>
+    <!-- Conditions Préalables -->
+    <div class="section list-section">
+      <div class="section-title">✅ Conditions Préalables</div>
+      <ul>
+        {{CONDITIONS}}
+      </ul>
     </div>
     
-    <div class="description-box">
-      <div class="info-label">Description des Travaux</div>
-      <p style="margin-top: 8px; line-height: 1.6;">{{DESCRIPTION}}</p>
+    <!-- Mesures de Prévention -->
+    <div class="section list-section">
+      <div class="section-title">🛡️ Mesures de Prévention</div>
+      <ul>
+        {{MESURES}}
+      </ul>
     </div>
-  </div>
-  
-  <!-- Conditions Préalables -->
-  <div class="section list-section">
-    <div class="section-title">CONDITIONS PRÉALABLES</div>
-    <ul>
-      {{CONDITIONS}}
-    </ul>
-  </div>
-  
-  <!-- Mesures de Prévention -->
-  <div class="section list-section">
-    <div class="section-title">MESURES DE PRÉVENTION</div>
-    <ul>
-      {{MESURES}}
-    </ul>
-  </div>
-  
-  <!-- Approbations -->
-  <div class="section">
-    <div class="section-title">APPROBATIONS ET SIGNATURES</div>
-    <table class="approvals-table">
-      <thead>
-        <tr>
-          <th>Rôle</th>
-          <th>Nom</th>
-          <th>Statut</th>
-          <th>Date</th>
-          <th>Commentaire</th>
-          <th>Signature Hash</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{APPROBATIONS}}
-      </tbody>
-    </table>
-  </div>
-  
-  <!-- Footer -->
-  <div class="footer">
-    <p><strong>Document généré le:</strong> {{DATE_GENERATION}}</p>
-    <p style="margin-top: 5px; font-size: 8pt;">
-      Ce document est une copie certifiée du permis de travail original.<br>
-      Toute modification non autorisée est interdite et détectable via la signature cryptographique.
-    </p>
+    
+    <!-- Approbations et Signatures -->
+    <div class="section">
+      <div class="section-title">✍️ Approbations et Signatures</div>
+      <table class="approvals-table">
+        <thead>
+          <tr>
+            <th style="width: 15%;">Rôle</th>
+            <th style="width: 20%;">Nom</th>
+            <th style="width: 10%;">Statut</th>
+            <th style="width: 18%;">Date</th>
+            <th style="width: 22%;">Commentaire</th>
+            <th style="width: 15%;">Signature Hash</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{APPROBATIONS}}
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      <p><strong>Document généré le :</strong> {{DATE_GENERATION}}</p>
+      <p style="margin-top: 8px; font-size: 8pt; line-height: 1.4;">
+        Ce document est une copie certifiée conforme du permis de travail original.<br>
+        Toute modification non autorisée est strictement interdite et détectable via signature cryptographique.<br>
+        Pour vérifier l'authenticité de ce document, utilisez la fonctionnalité de vérification PDF dans l'application.
+      </p>
+    </div>
   </div>
 </body>
 </html>

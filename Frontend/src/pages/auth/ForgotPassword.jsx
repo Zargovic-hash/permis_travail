@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../../api/client';
 import { toast } from 'react-toastify';
-import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Mail, ArrowLeft, CheckCircle, Send } from 'lucide-react';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -50,31 +50,36 @@ export default function ForgotPassword() {
 
   if (sent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
-          <div className="bg-white p-8 rounded-xl shadow-lg text-center">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 text-center">
             <div className="flex justify-center mb-6">
-              <div className="bg-success-100 text-success-600 rounded-full p-4">
-                <CheckCircle className="w-12 h-12" />
+              <div className="relative">
+                <div className="absolute inset-0 bg-emerald-500 rounded-full blur-xl opacity-30"></div>
+                <div className="relative bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-full p-4">
+                  <CheckCircle className="w-12 h-12" />
+                </div>
               </div>
             </div>
             
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">
               Email envoyé !
             </h2>
             
-            <p className="text-gray-600 mb-6">
-              Si l'email <strong>{email}</strong> est associé à un compte, vous recevrez un lien pour réinitialiser votre mot de passe dans quelques instants.
+            <p className="text-slate-600 mb-2">
+              Si l'email <strong className="text-slate-900">{email}</strong> est associé à un compte, vous recevrez un lien pour réinitialiser votre mot de passe dans quelques instants.
             </p>
             
-            <div className="space-y-3">
-              <p className="text-sm text-gray-500">
-                Vérifiez également votre dossier spam/courrier indésirable.
+            <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-100">
+              <p className="text-sm text-blue-800">
+                💡 Vérifiez également votre dossier spam/courrier indésirable.
               </p>
-              
+            </div>
+            
+            <div className="mt-6">
               <Link
                 to="/login"
-                className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium text-sm"
+                className="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold text-sm transition-colors"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Retour à la connexion
@@ -87,60 +92,66 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
         {/* Header */}
-        <div className="text-center">
-          <div className="flex justify-center">
-            <div className="bg-primary-600 text-white rounded-full p-4">
-              <Mail className="w-8 h-8" />
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <div className="absolute inset-0 bg-blue-600 rounded-2xl blur-xl opacity-30"></div>
+              <div className="relative bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-2xl p-5 shadow-lg">
+                <Send className="w-10 h-10" />
+              </div>
             </div>
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">
             Mot de passe oublié
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="text-slate-600 text-sm">
             Entrez votre email pour recevoir un lien de réinitialisation
           </p>
         </div>
 
         {/* Form */}
-        <form className="mt-8 space-y-6 bg-white p-8 rounded-xl shadow-lg" onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Adresse email
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
+                Adresse email
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-slate-400" />
+                </div>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (error) setError('');
+                  }}
+                  className={`block w-full pl-11 pr-4 py-3 border ${
+                    error ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-slate-300 focus:ring-blue-500 focus:border-blue-500'
+                  } rounded-xl focus:outline-none focus:ring-2 transition-all text-slate-900 placeholder-slate-400 bg-slate-50`}
+                  placeholder="vous@exemple.com"
+                />
               </div>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (error) setError('');
-                }}
-                className={`block w-full pl-10 pr-3 py-2.5 border ${
-                  error ? 'border-danger-500 focus:ring-danger-500' : 'border-gray-300 focus:ring-primary-500'
-                } rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors`}
-                placeholder="votreemail@example.com"
-              />
+              {error && (
+                <p className="mt-2 text-sm text-red-600 flex items-center">
+                  <span className="inline-block w-1 h-1 bg-red-600 rounded-full mr-2"></span>
+                  {error}
+                </p>
+              )}
             </div>
-            {error && (
-              <p className="mt-2 text-sm text-danger-600">{error}</p>
-            )}
-          </div>
 
-          <div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex justify-center items-center py-3.5 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-sm"
             >
               {loading ? (
                 <>
@@ -154,18 +165,23 @@ export default function ForgotPassword() {
                 'Envoyer le lien'
               )}
             </button>
-          </div>
 
-          <div className="text-center">
-            <Link
-              to="/login"
-              className="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-500 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Retour à la connexion
-            </Link>
-          </div>
-        </form>
+            <div className="text-center pt-2">
+              <Link
+                to="/login"
+                className="inline-flex items-center text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Retour à la connexion
+              </Link>
+            </div>
+          </form>
+        </div>
+
+        {/* Footer */}
+        <p className="text-center text-xs text-slate-500 mt-8">
+          Version 1.0.0 • HSE Management System
+        </p>
       </div>
     </div>
   );

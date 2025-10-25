@@ -113,6 +113,6 @@ export const TOAST_CONFIG = {
 // Regex patterns
 export const REGEX_PATTERNS = {
   EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  PHONE_FR: /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/,
+  PHONE_FR: /^(?:(?:\+|00)213|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/,
   PASSWORD: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/
 };

@@ -270,45 +270,117 @@ class PermisController {
     }
   }
 
-  async exportPDF(req, res, next) {
-    try {
-      console.log('📄 Export PDF permis:', req.params.id);
-      
-      const { buffer } = await pdfService.genererPDFPermis(req.params.id);
-      
-      await auditLogRepository.create({
-        action: 'EXPORT_PDF_PERMIS',
-        utilisateur_id: req.user.id,
-        cible_table: 'permis',
-        cible_id: req.params.id,
-        ip_client: req.ip
-      });
+// Remplacer les méthodes exportPDF et verifierPDF dans permis.controller.js
 
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename=permis-${req.params.id}.pdf`);
-      res.send(buffer);
-    } catch (error) {
-      console.error('❌ Erreur export PDF:', error.message);
-      next(error);
-    }
-  }
+async exportPDF(req, res, next) {
+  try {
+    console.log('📄 Export PDF permis:', req.params.id);
+    
+    // ✅ Générer le PDF avec le nouveau service
+    const { buffer, hash } = await pdfService.genererPDFPermis(req.params.id);
+    
+    // ✅ Enregistrer dans l'audit log
+    await auditLogRepository.create({
+      action: 'EXPORT_PDF_PERMIS',
+      utilisateur_id: req.user.id,
+      cible_table: 'permis',
+      cible_id: req.params.id,
+      payload: { 
+        pdf_hash: hash,
+        taille_bytes: buffer.length
+      },
+      ip_client: req.ip
+    });
 
-  async verifierPDF(req, res, next) {
-    try {
-      console.log('🔐 Vérification PDF permis:', req.params.id);
-      
-      const verification = await pdfService.verifierIntegritePDF(req.params.id);
-      
-      res.json({
-        success: verification.isValid,
-        message: verification.isValid ? 'Signature PDF valide' : 'Signature PDF invalide',
-        data: verification
-      });
-    } catch (error) {
-      console.error('❌ Erreur vérification PDF:', error.message);
-      next(error);
-    }
+    // ✅ Récupérer le permis pour le nom de fichier
+    const permis = await permisRepository.findById(req.params.id);
+    const filename = `permis-${permis.numero_permis}.pdf`;
+
+    // ✅ Envoyer le PDF avec les bons headers
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', buffer.length);
+    res.setHeader('X-PDF-Hash', hash); // Hash pour vérification côté client
+    
+    res.send(buffer);
+    
+    console.log('✅ PDF exporté avec succès:', filename);
+  } catch (error) {
+    console.error('❌ Erreur export PDF:', error.message);
+    console.error('Stack:', error.stack);
+    
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de l\'export PDF',
+      error: error.message
+    });
   }
+}
+
+async verifierPDF(req, res, next) {
+  try {
+    console.log('');
+    console.log('╔═══════════════════════════════════════════════╗');
+    console.log('║   🔍 CONTROLLER: verifierPDF                 ║');
+    console.log('╚═══════════════════════════════════════════════╝');
+    console.log('📥 Request:', {
+      permisId: req.params.id,
+      userId: req.user?.id,
+      userRole: req.user?.role,
+      method: req.method,
+      url: req.originalUrl
+    });
+    
+    const verification = await pdfService.verifierIntegritePDF(req.params.id);
+    
+    console.log('📤 Résultat du service:', JSON.stringify(verification, null, 2));
+    
+    await auditLogRepository.create({
+      action: 'VERIFICATION_PDF_PERMIS',
+      utilisateur_id: req.user.id,
+      cible_table: 'permis',
+      cible_id: req.params.id,
+      payload: { 
+        resultat: verification.isValid ? 'VALIDE' : 'INVALIDE',
+        details: verification.details
+      },
+      ip_client: req.ip
+    });
+
+    const responsePayload = {
+      success: verification.success !== false,
+      message: verification.message,
+      data: {
+        isValid: verification.isValid,
+        details: verification.details
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    console.log('📨 Réponse envoyée:', JSON.stringify(responsePayload, null, 2));
+    console.log('📊 Status Code: 200');
+    console.log('');
+
+    res.status(200).json(responsePayload);
+    
+  } catch (error) {
+    console.error('');
+    console.error('╔═══════════════════════════════════════════════╗');
+    console.error('║   ❌ ERREUR DANS CONTROLLER                  ║');
+    console.error('╚═══════════════════════════════════════════════╝');
+    console.error('Message:', error.message);
+    console.error('Stack:', error.stack);
+    console.error('');
+    
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la vérification',
+      error: error.message
+    });
+  }
+}
+
+
   async getAvailableActions(req, res, next) {
   try {
     const permis = await permisRepository.findById(req.params.id);

@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'react-toastify';
-import { Eye, EyeOff, Lock, Mail, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, AlertCircle, Shield } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  
   
   const [formData, setFormData] = useState({
     email: '',
@@ -41,7 +40,6 @@ export default function Login() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error when user types
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -50,7 +48,6 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Rate limiting côté client
     if (attemptCount >= 3) {
       toast.error('Trop de tentatives. Veuillez réessayer dans quelques minutes.');
       return;
@@ -90,44 +87,47 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="flex justify-center">
-            <div className="bg-primary-600 text-white rounded-full p-4">
-              <Lock className="w-8 h-8" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        {/* Header avec logo */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <div className="absolute inset-0 bg-blue-600 rounded-2xl blur-xl opacity-30"></div>
+              <div className="relative bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-2xl p-5 shadow-lg">
+                <Shield className="w-10 h-10" />
+              </div>
             </div>
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Connexion
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">
+            Bienvenue
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="text-slate-600 text-sm">
             Système de Gestion des Permis HSE
           </p>
         </div>
 
         {/* Error Alert */}
         {errors.general && (
-          <div className="bg-danger-50 border border-danger-200 rounded-lg p-4 flex items-start">
-            <AlertCircle className="w-5 h-5 text-danger-600 mt-0.5 mr-3 flex-shrink-0" />
+          <div className="mb-6 bg-red-50 border-l-4 border-red-500 rounded-lg p-4 flex items-start shadow-sm">
+            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
             <div className="flex-1">
-              <p className="text-sm text-danger-800">{errors.general}</p>
+              <p className="text-sm text-red-800 font-medium">{errors.general}</p>
             </div>
           </div>
         )}
 
         {/* Form */}
-        <form className="mt-8 space-y-6 bg-white p-8 rounded-xl shadow-lg" onSubmit={handleSubmit}>
-          <div className="space-y-5">
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
                 Adresse email
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-slate-400" />
                 </div>
                 <input
                   id="email"
@@ -137,25 +137,28 @@ export default function Login() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className={`block w-full pl-10 pr-3 py-2.5 border ${
-                    errors.email ? 'border-danger-500 focus:ring-danger-500' : 'border-gray-300 focus:ring-primary-500'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors`}
-                  placeholder="votreemail@example.com"
+                  className={`block w-full pl-11 pr-4 py-3 border ${
+                    errors.email ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-slate-300 focus:ring-blue-500 focus:border-blue-500'
+                  } rounded-xl focus:outline-none focus:ring-2 transition-all text-slate-900 placeholder-slate-400 bg-slate-50`}
+                  placeholder="vous@exemple.com"
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-danger-600">{errors.email}</p>
+                <p className="mt-2 text-sm text-red-600 flex items-center">
+                  <span className="inline-block w-1 h-1 bg-red-600 rounded-full mr-2"></span>
+                  {errors.email}
+                </p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-2">
                 Mot de passe
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-slate-400" />
                 </div>
                 <input
                   id="password"
@@ -165,61 +168,60 @@ export default function Login() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className={`block w-full pl-10 pr-10 py-2.5 border ${
-                    errors.password ? 'border-danger-500 focus:ring-danger-500' : 'border-gray-300 focus:ring-primary-500'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition-colors`}
+                  className={`block w-full pl-11 pr-11 py-3 border ${
+                    errors.password ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-slate-300 focus:ring-blue-500 focus:border-blue-500'
+                  } rounded-xl focus:outline-none focus:ring-2 transition-all text-slate-900 placeholder-slate-400 bg-slate-50`}
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center hover:bg-slate-100 rounded-r-xl transition-colors"
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <EyeOff className="h-5 w-5 text-slate-400 hover:text-slate-600" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <Eye className="h-5 w-5 text-slate-400 hover:text-slate-600" />
                   )}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-danger-600">{errors.password}</p>
+                <p className="mt-2 text-sm text-red-600 flex items-center">
+                  <span className="inline-block w-1 h-1 bg-red-600 rounded-full mr-2"></span>
+                  {errors.password}
+                </p>
               )}
             </div>
-          </div>
 
-          {/* Remember me & Forgot password */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded cursor-pointer"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 cursor-pointer">
-                Se souvenir de moi
-              </label>
-            </div>
+            {/* Remember me & Forgot password */}
+            <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded cursor-pointer"
+                />
+                <label htmlFor="remember-me" className="ml-2.5 block text-sm text-slate-600 cursor-pointer select-none">
+                  Se souvenir de moi
+                </label>
+              </div>
 
-            <div className="text-sm">
               <Link
                 to="/forgot-password"
-                className="font-medium text-primary-600 hover:text-primary-500 transition-colors"
+                className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
               >
                 Mot de passe oublié ?
               </Link>
             </div>
-          </div>
 
-          {/* Submit Button */}
-          <div>
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading || attemptCount >= 3}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex justify-center items-center py-3.5 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-sm"
             >
               {loading ? (
                 <>
@@ -233,26 +235,26 @@ export default function Login() {
                 'Se connecter'
               )}
             </button>
-          </div>
+          </form>
 
           {/* Register Link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
+          <div className="mt-6 pt-6 border-t border-slate-200">
+            <p className="text-center text-sm text-slate-600">
               Pas encore de compte ?{' '}
               <Link
                 to="/register"
-                className="font-medium text-primary-600 hover:text-primary-500 transition-colors"
+                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
               >
                 Créer un compte
               </Link>
             </p>
           </div>
-        </form>
-
-        {/* Footer Info */}
-        <div className="text-center text-xs text-gray-500 mt-4">
-          <p>Version 1.0.0 - HSE Management System</p>
         </div>
+
+        {/* Footer */}
+        <p className="text-center text-xs text-slate-500 mt-8">
+          Version 1.0.0 • HSE Management System
+        </p>
       </div>
     </div>
   );

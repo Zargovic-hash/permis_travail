@@ -2,42 +2,35 @@ const cors = require('cors');
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, Postman, curl)
-    if (!origin) {
-      return callback(null, true);
-    }
+    const allowedOrigins = [
+      process.env.FRONTEND_URL || 'http://localhost:5173',
+      'http://localhost:3000',
+      'http://localhost:5173'
+    ];
     
-    const allowedOrigins = process.env.CORS_ORIGINS 
-      ? process.env.CORS_ORIGINS.split(',').map(o => o.trim())
-      : [
-          'http://localhost:3001',
-          'http://localhost:5173',
-          'http://localhost:3000'
-        ];
-    
-    // En développement, accepter IPs locales
-    const isDevelopment = process.env.NODE_ENV !== 'production';
-    const isLocalIP = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+):\d+$/.test(origin);
-    
-    if (allowedOrigins.includes(origin) || (isDevelopment && isLocalIP)) {
+    // Permettre les requêtes sans origin (comme Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.warn(`❌ CORS blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error('Non autorisé par CORS'));
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: [
     'Content-Type',
     'Authorization',
     'X-Requested-With',
-    'Accept',
-    'Origin'
+    'Accept'
   ],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 600,
-  optionsSuccessStatus: 204
+  // ✅ CRITIQUE: Exposer les headers personnalisés au frontend
+  exposedHeaders: [
+    'X-PDF-Hash',           // Hash du PDF pour vérification
+    'Content-Disposition',  // Nom du fichier
+    'Content-Length',       // Taille du fichier
+    'Content-Type'          // Type MIME
+  ]
 };
 
 module.exports = cors(corsOptions);

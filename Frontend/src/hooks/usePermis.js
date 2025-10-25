@@ -155,52 +155,160 @@ export const useAddFileToPermis = (id) => {
   });
 };
 
-// Exporter un permis en PDF
 export const useExportPermisPDF = () => {
   return useMutation({
     mutationFn: async (id) => {
-      const response = await apiClient.get(`/permis/${id}/export/pdf`, {
-        responseType: 'blob'
-      });
-      
-      // Créer un lien de téléchargement
-      const url = window.URL.createObjectURL(new Blob([response]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `permis-${id}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      
-      return response;
+      try {
+        const axios = (await import('axios')).default;
+        const token = localStorage.getItem('accessToken');
+        
+        const response = await axios.get(
+          `${apiClient.defaults.baseURL}/permis/${id}/export/pdf`,
+          {
+            responseType: 'blob',
+            timeout: 60000,
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+        
+        // ✅ FIX: Vérifier que headers existe avant d'y accéder
+        const pdfHash = response.headers?.['x-pdf-hash'] || null;
+        const blob = response.data;
+        
+        // Créer le lien de téléchargement
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        
+        // Extraire le nom du fichier
+        const contentDisposition = response.headers?.['content-disposition'];
+        let filename = `permis-${id}.pdf`;
+        
+        if (contentDisposition) {
+          const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+          if (match && match[1]) {
+            filename = match[1].replace(/['"]/g, '');
+          }
+        }
+        
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        
+        return { 
+          success: true, 
+          filename,
+          hash: pdfHash,
+          size: blob.size
+        };
+      } catch (error) {
+        console.error('❌ Erreur export PDF:', error);
+        throw error;
+      }
     },
-    onSuccess: () => {
-      toast.success('PDF téléchargé avec succès');
+    onSuccess: (data) => {
+      toast.success(`✅ PDF téléchargé: ${data.filename}`);
+      console.log('📄 PDF exporté:', {
+        fichier: data.filename,
+        taille: `${(data.size / 1024).toFixed(2)} KB`,
+        hash: data.hash ? data.hash.substring(0, 16) + '...' : 'N/A'
+      });
     },
     onError: (error) => {
-      const message = error.response?.data?.message || 'Erreur lors de l\'export PDF';
+      const message = error.response?.data?.message || 
+                     error.message || 
+                     'Erreur lors de l\'export PDF';
       toast.error(message);
-      throw error;
     }
   });
 };
 
-// Vérifier l'intégrité du PDF
+
 export const useVerifyPermisPDF = () => {
   return useMutation({
-    mutationFn: (id) => apiClient.post(`/permis/${id}/verify-pdf`),
+    mutationFn: async (id) => {
+      try {
+        const axios = (await import('axios')).default;
+        const token = localStorage.getItem('accessToken');
+        
+        const response = await axios.post(
+          `${apiClient.defaults.baseURL}/permis/${id}/verify-pdf`,
+          {},
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            // ✅ LA CLÉ: accepter 400 comme réponse valide
+            validateStatus: (status) => status < 500
+          }
+        );
+        
+        return response.data;
+      } catch (error) {
+        console.error('Erreur vérification:', error);
+        console.error('Response:', error.response?.data);
+        
+        if (error.response?.data) {
+          return {
+            success: false,
+            isValid: false,
+            message: error.response.data.message || 'Vérification échouée',
+            data: {
+              isValid: false,
+              details: error.response.data.data || error.response.data.details || {}
+            }
+          };
+        }
+        throw error;
+      }
+    },
     onSuccess: (response) => {
-      if (response.success) {
-        toast.success('Signature PDF vérifiée avec succès');
+      console.log('🔍 Résultat:', response);
+      
+      const isValid = response.success !== false && 
+                     (response.isValid === true || response.data?.isValid === true);
+      
+      if (isValid) {
+        toast.success('✅ PDF vérifié - Intégrité confirmée', { autoClose: 5000 });
+        
+        const details = response.data?.details || response.details;
+        console.log('📋 Détails:', {
+          pdfIntegre: details?.pdfIntegre,
+          signaturesValides: details?.signaturesValides,
+          nombreApprobations: details?.nombreApprobations
+        });
+        
+        if (details?.verifications) {
+          console.table(details.verifications);
+        }
       } else {
-        toast.warning('La vérification du PDF a échoué');
+        const raison = response.message || response.data?.message || 'Vérification échouée';
+        toast.warning(`⚠️ ${raison}`, { autoClose: 7000 });
+        
+        const details = response.data?.details || response.details;
+        console.warn('⚠️ Problèmes:', details);
+        
+        // Afficher des conseils
+        if (details?.pdfIntegre === false) {
+          console.warn('🔴 Le PDF a été modifié depuis sa génération!');
+        }
+        if (details?.signaturesValides === false) {
+          console.warn('🔴 Au moins une signature est invalide!');
+          if (details?.verifications) {
+            const invalides = details.verifications.filter(v => !v.valide);
+            console.table(invalides);
+          }
+        }
       }
     },
     onError: (error) => {
-      const message = error.response?.data?.message || 'Erreur lors de la vérification du PDF';
-      toast.error(message);
-      throw error;
+      const message = error.response?.data?.message || error.message || 'Erreur';
+      toast.error(`❌ ${message}`);
     }
   });
 };
