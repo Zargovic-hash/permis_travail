@@ -154,12 +154,12 @@ class PermisService {
     // Matrice de transition complète
     const transitions = {
       'BROUILLON': {
-        // Le demandeur peut soumettre son brouillon
+        // ✅ LE DEMANDEUR DOIT SIGNER LORS DE LA SOUMISSION
         'DEMANDEUR': {
           condition: (isDem) => isDem,
           roleApprobation: 'DEMANDEUR',
           nouveauStatut: 'EN_ATTENTE',
-          requiresSignature: false
+          requiresSignature: true  // ✅ SIGNATURE REQUISE
         },
         // Les superviseurs/HSE peuvent directement valider
         'SUPERVISEUR': {
@@ -229,7 +229,7 @@ class PermisService {
           condition: (isDem) => isDem,
           roleApprobation: 'DEMANDEUR',
           nouveauStatut: 'CLOTURE',
-          requiresSignature: false
+          requiresSignature: true  // ✅ LE DEMANDEUR SIGNE AUSSI LA CLÔTURE
         },
         'SUPERVISEUR': {
           condition: () => true,
@@ -274,7 +274,7 @@ class PermisService {
    */
   getAvailableTransitions(statutActuel) {
     const map = {
-      'BROUILLON': 'EN_ATTENTE (Demandeur), VALIDE (Superviseur/HSE)',
+      'BROUILLON': 'EN_ATTENTE (Demandeur avec signature, Superviseur/HSE)',
       'EN_ATTENTE': 'VALIDE (Superviseur/HSE)',
       'VALIDE': 'EN_COURS (Responsable Zone/HSE)',
       'EN_COURS': 'CLOTURE (Demandeur/Superviseur/HSE)',

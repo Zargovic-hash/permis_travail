@@ -39,10 +39,9 @@ export default function PermisValidate() {
       setActionLabel(label || 'Valider');
       setNextStatus(next);
       
-      const isDemandeur = permis.demandeur_id === user.id;
-      const isSubmitting = permis.statut === 'BROUILLON' && isDemandeur;
-      
-      setRequiresSignature(!isSubmitting);
+      // ✅ TOUS LES UTILISATEURS DOIVENT SIGNER
+      // La signature est TOUJOURS requise, même pour le demandeur
+      setRequiresSignature(true);
     }
   }, [permis, user]);
 
@@ -57,13 +56,14 @@ export default function PermisValidate() {
       return;
     }
 
-    if (requiresSignature && !hasSignature) {
+    // ✅ LA SIGNATURE EST OBLIGATOIRE POUR TOUS
+    if (!hasSignature) {
       toast.error('Veuillez signer le permis avant de valider');
       return;
     }
 
     try {
-      const signatureImage = hasSignature ? signatureRef.current?.toDataURL() : null;
+      const signatureImage = signatureRef.current?.toDataURL();
 
       await validerPermis.mutateAsync({
         commentaire: commentaire.trim() || undefined,
@@ -135,26 +135,27 @@ export default function PermisValidate() {
     const isDemandeur = permis.demandeur_id === user.id;
     
     if (permis.statut === 'BROUILLON' && isDemandeur) {
-      return 'Je confirme que toutes les informations sont correctes et je souhaite soumettre ce permis pour validation.';
+      // ✅ LE DEMANDEUR SIGNE LORS DE LA SOUMISSION
+      return 'Je confirme que toutes les informations sont correctes et je signe l\'émission de ce permis. Je souhaite le soumettre pour validation.';
     }
     
     if (permis.statut === 'BROUILLON') {
-      return 'Je confirme avoir vérifié toutes les informations et je valide ce permis.';
+      return 'Je confirme avoir vérifié toutes les informations et je valide ce permis en y apposant ma signature.';
     }
     
     if (permis.statut === 'EN_ATTENTE') {
-      return 'Je confirme avoir vérifié toutes les informations, les conditions de sécurité et les mesures de prévention. Je valide ce permis en connaissance de cause.';
+      return 'Je confirme avoir vérifié toutes les informations, les conditions de sécurité et les mesures de prévention. Je valide ce permis en y apposant ma signature.';
     }
     
     if (permis.statut === 'VALIDE') {
-      return 'Je confirme que toutes les conditions sont réunies et j\'autorise le démarrage des travaux.';
+      return 'Je confirme que toutes les conditions sont réunies et j\'autorise le démarrage des travaux en y apposant ma signature.';
     }
     
     if (permis.statut === 'EN_COURS') {
-      return 'Je confirme que les travaux sont terminés et je clôture ce permis.';
+      return 'Je confirme que les travaux sont terminés et je clôture ce permis en y apposant ma signature.';
     }
     
-    return 'Je confirme cette action.';
+    return 'Je confirme cette action et y appose ma signature électronique.';
   };
 
   return (
@@ -184,6 +185,11 @@ export default function PermisValidate() {
             <strong>Action:</strong> Ce permis passera de <span className="font-semibold">{permis.statut}</span> à <span className="font-semibold">{nextStatus}</span>
           </Alert>
         )}
+
+        {/* ✅ ALERTE SIGNATURE OBLIGATOIRE */}
+        <Alert variant="warning">
+          <strong>⚠️ Signature électronique obligatoire</strong> - Votre signature est requise pour valider cette action. Elle sera enregistrée de manière immuable.
+        </Alert>
 
         {/* Résumé du permis */}
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
@@ -234,12 +240,12 @@ export default function PermisValidate() {
         {/* Formulaire de validation */}
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
           <h3 className="text-lg font-semibold text-slate-900 mb-6">
-            {requiresSignature ? "Validation et Signature" : "Validation"}
+            Validation et Signature Électronique
           </h3>
           <div className="space-y-6">
             {/* Commentaire */}
             <Textarea
-              label={requiresSignature ? "Commentaire (optionnel)" : "Commentaire"}
+              label="Commentaire (optionnel)"
               value={commentaire}
               onChange={(e) => setCommentaire(e.target.value)}
               rows={4}
@@ -247,37 +253,54 @@ export default function PermisValidate() {
               helperText="Ce commentaire sera visible dans l'historique du permis"
             />
 
-            {/* Signature électronique */}
-            {requiresSignature && (
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Signature électronique <span className="text-red-600">*</span>
-                </label>
-                <div className="border-2 border-slate-300 rounded-lg overflow-hidden bg-white">
-                  <SignatureCanvas
-                    ref={signatureRef}
-                    canvasProps={{
-                      className: 'w-full h-48',
-                      style: { touchAction: 'none' }
-                    }}
-                    onEnd={() => setHasSignature(true)}
-                  />
-                </div>
-                <div className="flex justify-between items-center mt-2">
-                  <p className="text-xs text-slate-500">
-                    Signez dans le cadre ci-dessus (souris ou tactile)
-                  </p>
+            {/* ✅ Signature électronique - TOUJOURS REQUISE */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Signature électronique <span className="text-red-600 font-bold">*</span>
+              </label>
+              <p className="text-xs text-slate-600 mb-3">
+                Veuillez signer dans le cadre ci-dessous. Votre signature engage votre responsabilité.
+              </p>
+              <div className="border-2 border-slate-300 rounded-lg overflow-hidden bg-white">
+                <SignatureCanvas
+                  ref={signatureRef}
+                  canvasProps={{
+                    className: 'w-full h-48',
+                    style: { touchAction: 'none' }
+                  }}
+                  onEnd={() => setHasSignature(true)}
+                />
+              </div>
+              <div className="flex justify-between items-center mt-2">
+                <p className="text-xs text-slate-500">
+                  ✍️ Signez avec votre souris ou votre doigt (écran tactile)
+                </p>
+                {hasSignature && (
                   <button
                     type="button"
                     onClick={handleClearSignature}
                     className="inline-flex items-center text-sm text-slate-600 hover:text-slate-800 font-medium"
                   >
                     <X className="w-4 h-4 mr-1" />
-                    Effacer
+                    Effacer la signature
                   </button>
-                </div>
+                )}
               </div>
-            )}
+              {!hasSignature && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-xs text-red-700 font-medium">
+                    ⚠️ Vous devez signer avant de pouvoir valider
+                  </p>
+                </div>
+              )}
+              {hasSignature && (
+                <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                  <p className="text-xs text-emerald-700 font-medium">
+                    ✅ Signature capturée avec succès
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Confirmation */}
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
@@ -297,16 +320,9 @@ export default function PermisValidate() {
 
             {/* Alert info */}
             <Alert variant="info">
-              {requiresSignature ? (
-                <>
-                  <strong>Information:</strong> Votre signature et cette validation seront enregistrées 
-                  de manière immuable dans le système. Elles ne pourront pas être modifiées ultérieurement.
-                </>
-              ) : (
-                <>
-                  <strong>Information:</strong> Cette action sera enregistrée dans l'historique du permis.
-                </>
-              )}
+              <strong>Information:</strong> Votre signature et cette validation seront enregistrées 
+              de manière immuable dans le système. Elles ne pourront pas être modifiées ultérieurement.
+              Chaque action est traçable et auditable.
             </Alert>
           </div>
         </div>
@@ -325,7 +341,7 @@ export default function PermisValidate() {
             icon={nextStatus === 'EN_ATTENTE' ? Send : CheckCircle}
             onClick={handleValidate}
             loading={validerPermis.isPending}
-            disabled={!confirmed || (requiresSignature && !hasSignature)}
+            disabled={!confirmed || !hasSignature}
           >
             {actionLabel}
           </Button>

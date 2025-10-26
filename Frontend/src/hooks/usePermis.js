@@ -173,16 +173,16 @@ export const useExportPermisPDF = () => {
           }
         );
         
-        // ✅ FIX: Vérifier que headers existe avant d'y accéder
+        // ✅ Récupérer le hash
         const pdfHash = response.headers?.['x-pdf-hash'] || null;
         const blob = response.data;
         
-        // Créer le lien de téléchargement
+        // ✅ CORRECTION: Créer URL pour téléchargement direct
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         
-        // Extraire le nom du fichier
+        // ✅ Extraire le nom du fichier
         const contentDisposition = response.headers?.['content-disposition'];
         let filename = `permis-${id}.pdf`;
         
@@ -193,17 +193,26 @@ export const useExportPermisPDF = () => {
           }
         }
         
+        // ✅ Configuration pour téléchargement vers le dossier par défaut
         link.setAttribute('download', filename);
+        link.style.display = 'none';
+        
+        // ✅ Déclencher le téléchargement
         document.body.appendChild(link);
         link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
+        
+        // ✅ Nettoyer après un court délai
+        setTimeout(() => {
+          link.remove();
+          window.URL.revokeObjectURL(url);
+        }, 100);
         
         return { 
           success: true, 
           filename,
           hash: pdfHash,
-          size: blob.size
+          size: blob.size,
+          downloaded: true
         };
       } catch (error) {
         console.error('❌ Erreur export PDF:', error);
@@ -211,8 +220,8 @@ export const useExportPermisPDF = () => {
       }
     },
     onSuccess: (data) => {
-      toast.success(`✅ PDF téléchargé: ${data.filename}`);
-      console.log('📄 PDF exporté:', {
+      toast.success(`✅ PDF téléchargé: ${data.filename}`, { autoClose: 5000 });
+      console.log('📥 PDF téléchargé dans le dossier Téléchargements:', {
         fichier: data.filename,
         taille: `${(data.size / 1024).toFixed(2)} KB`,
         hash: data.hash ? data.hash.substring(0, 16) + '...' : 'N/A'

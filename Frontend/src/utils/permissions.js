@@ -2,10 +2,10 @@
  * ✅ SYSTÈME DE PERMISSIONS COHÉRENT AVEC LE WORKFLOW
  * 
  * Workflow:
- * 1. BROUILLON → EN_ATTENTE (Demandeur soumet)
- * 2. EN_ATTENTE → VALIDE (Superviseur/HSE valide)
- * 3. VALIDE → EN_COURS (Resp Zone/HSE autorise)
- * 4. EN_COURS → CLOTURE (Demandeur/Superviseur/HSE clôture)
+ * 1. BROUILLON → EN_ATTENTE (Demandeur soumet avec signature)
+ * 2. EN_ATTENTE → VALIDE (Superviseur/HSE valide avec signature)
+ * 3. VALIDE → EN_COURS (Resp Zone/HSE autorise avec signature)
+ * 4. EN_COURS → CLOTURE (Demandeur/Superviseur/HSE clôture avec signature)
  */
 
 /**
@@ -34,7 +34,7 @@ export const canValidatePermis = (permis, user) => {
   // Selon le statut actuel, déterminer qui peut valider
   switch (permis.statut) {
     case 'BROUILLON':
-      // Le demandeur peut soumettre (BROUILLON → EN_ATTENTE)
+      // ✅ Le demandeur peut soumettre (BROUILLON → EN_ATTENTE)
       if (permis.demandeur_id === user.id) return true;
       // Superviseur/HSE peuvent valider directement (BROUILLON → VALIDE)
       if (['SUPERVISEUR', 'HSE', 'ADMIN'].includes(user.role)) return true;
@@ -49,7 +49,7 @@ export const canValidatePermis = (permis, user) => {
       return ['RESP_ZONE', 'HSE', 'ADMIN'].includes(user.role);
 
     case 'EN_COURS':
-      // Demandeur, Superviseur ou HSE peuvent clôturer (EN_COURS → CLOTURE)
+      // ✅ Demandeur, Superviseur ou HSE peuvent clôturer (EN_COURS → CLOTURE)
       if (permis.demandeur_id === user.id) return true;
       return ['SUPERVISEUR', 'HSE', 'ADMIN'].includes(user.role);
 
@@ -72,18 +72,19 @@ export const getValidationActionLabel = (permis, user) => {
   switch (permis.statut) {
     case 'BROUILLON':
       if (permis.demandeur_id === user.id) {
-        return 'Soumettre pour validation';
+        // ✅ LE DEMANDEUR SIGNE LORS DE LA SOUMISSION
+        return 'Signer et soumettre pour validation';
       }
-      return 'Valider le permis';
+      return 'Valider et signer le permis';
 
     case 'EN_ATTENTE':
-      return 'Valider le permis';
+      return 'Valider et signer le permis';
 
     case 'VALIDE':
-      return 'Autoriser le démarrage des travaux';
+      return 'Autoriser le démarrage et signer';
 
     case 'EN_COURS':
-      return 'Clôturer le permis';
+      return 'Clôturer et signer le permis';
 
     default:
       return null;
@@ -252,6 +253,7 @@ export const getPossibleStatuses = (currentStatus, user) => {
   
   const transitions = {
     BROUILLON: {
+      // ✅ LE DEMANDEUR PEUT SOUMETTRE (AVEC SIGNATURE)
       DEMANDEUR: ['EN_ATTENTE'],
       SUPERVISEUR: ['EN_ATTENTE', 'VALIDE'],
       RESP_ZONE: ['EN_ATTENTE'],
@@ -269,6 +271,7 @@ export const getPossibleStatuses = (currentStatus, user) => {
       ADMIN: ['EN_COURS']
     },
     EN_COURS: {
+      // ✅ LE DEMANDEUR PEUT CLÔTURER (AVEC SIGNATURE)
       DEMANDEUR: ['CLOTURE'],
       SUPERVISEUR: ['CLOTURE'],
       HSE: ['CLOTURE'],
@@ -294,26 +297,32 @@ export const getWorkflowDescription = (permis, user) => {
 
   const descriptions = {
     BROUILLON: {
-      DEMANDEUR: 'Vous pouvez soumettre ce permis pour validation par un superviseur.',
-      SUPERVISEUR: 'Vous pouvez valider directement ce permis ou attendre que le demandeur le soumette.',
-      HSE: 'Vous pouvez valider directement ce permis.',
-      ADMIN: 'Vous pouvez valider directement ce permis.',
+      // ✅ LE DEMANDEUR DOIT SIGNER POUR SOUMETTRE
+      DEMANDEUR: 'Vous devez signer ce permis et le soumettre pour validation par un superviseur. Votre signature engage votre responsabilité.',
+      SUPERVISEUR: 'Vous pouvez valider et signer directement ce permis, ou attendre que le demandeur le soumette.',
+      HSE: 'Vous pouvez valider et signer directement ce permis.',
+      ADMIN: 'Vous pouvez valider et signer directement ce permis.',
       DEFAULT: 'Ce permis est en cours de rédaction.'
     },
     EN_ATTENTE: {
-      SUPERVISEUR: 'Vous devez valider ce permis pour autoriser les travaux.',
-      HSE: 'Vous devez valider ce permis pour autoriser les travaux.',
-      ADMIN: 'Vous devez valider ce permis pour autoriser les travaux.',
+      SUPERVISEUR: 'Vous devez valider et signer ce permis pour autoriser les travaux.',
+      HSE: 'Vous devez valider et signer ce permis pour autoriser les travaux.',
+      ADMIN: 'Vous devez valider et signer ce permis pour autoriser les travaux.',
       DEFAULT: 'Ce permis est en attente de validation par un superviseur.'
     },
     VALIDE: {
-      RESP_ZONE: 'Vous devez autoriser le démarrage des travaux.',
-      HSE: 'Vous devez autoriser le démarrage des travaux.',
-      ADMIN: 'Vous devez autoriser le démarrage des travaux.',
+      RESP_ZONE: 'Vous devez autoriser le démarrage des travaux en signant ce permis.',
+      HSE: 'Vous devez autoriser le démarrage des travaux en signant ce permis.',
+      ADMIN: 'Vous devez autoriser le démarrage des travaux en signant ce permis.',
       DEFAULT: 'Ce permis est validé et attend l\'autorisation de démarrage.'
     },
     EN_COURS: {
-      DEFAULT: 'Les travaux sont en cours. Ce permis peut être clôturé une fois les travaux terminés.'
+      // ✅ LE DEMANDEUR DOIT SIGNER LA CLÔTURE
+      DEMANDEUR: 'Les travaux sont en cours. Vous devez signer la clôture une fois les travaux terminés.',
+      SUPERVISEUR: 'Les travaux sont en cours. Vous pouvez les clôturer en signant.',
+      HSE: 'Les travaux sont en cours. Vous pouvez les clôturer en signant.',
+      ADMIN: 'Les travaux sont en cours. Vous pouvez les clôturer en signant.',
+      DEFAULT: 'Les travaux sont en cours.'
     },
     SUSPENDU: {
       HSE: 'Vous pouvez réactiver ce permis.',

@@ -294,7 +294,7 @@ async exportPDF(req, res, next) {
 
     // ✅ Récupérer le permis pour le nom de fichier
     const permis = await permisRepository.findById(req.params.id);
-    const filename = `permis-${permis.numero_permis}.pdf`;
+    const filename = `Permis-${permis.numero_permis}.pdf`;
 
     // ✅ Envoyer le PDF avec les bons headers
     res.setHeader('Content-Type', 'application/pdf');

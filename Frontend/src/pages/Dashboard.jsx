@@ -1,288 +1,422 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../api/client';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { 
-  FileText, 
-  Clock, 
-  CheckCircle, 
+  RefreshCw, 
+  AlertCircle, 
+  MapPin, 
+  Calendar, 
+  User,
+  Building2,
+  ChevronRight,
+  CheckCircle,
+  Clock,
   AlertTriangle,
-  TrendingUp
+  Ban
 } from 'lucide-react';
-import { 
-  LineChart, 
-  Line, 
-  BarChart, 
-  Bar, 
-  PieChart, 
-  Pie, 
-  Cell,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend,
-  ResponsiveContainer 
-} from 'recharts';
+import { toast } from 'react-toastify';
 
-export default function Dashboard() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+export default function DashboardZonesPermis() {
+  const [selectedStatut, setSelectedStatut] = useState('');
+  const [selectedPermis, setSelectedPermis] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Vraies requêtes API vers le backend
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['statistics'],
-    queryFn: () => apiClient.get('/reports/statistiques'),
+  // Récupération des zones
+  const { 
+    data: zonesData, 
+    isLoading: zonesLoading, 
+    error: zonesError,
+    refetch: refetchZones 
+  } = useQuery({
+    queryKey: ['zones-dashboard'],
+    queryFn: () => apiClient.get('/zones'),
     staleTime: 5 * 60 * 1000
   });
 
-  const { data: recentPermis, isLoading: permisLoading } = useQuery({
-    queryKey: ['permis', 'recent'],
-    queryFn: () => apiClient.get('/permis?limit=5&page=1'),
-    staleTime: 5 * 60 * 1000
+  const zones = zonesData?.data || [];
+
+  // Récupération des permis pour chaque zone
+  const { 
+    data: permisDataByZone = {}, 
+    isLoading: permisLoading,
+    refetch: refetchPermis
+  } = useQuery({
+    queryKey: ['permis-by-zone', zones.map(z => z.id).join(',')],
+    queryFn: async () => {
+      const result = {};
+      for (const zone of zones) {
+        const res = await apiClient.get(`/permis?zone_id=${zone.id}`);
+        result[zone.id] = res.data || [];
+      }
+      return result;
+    },
+    enabled: zones.length > 0,
+    staleTime: 3 * 60 * 1000
   });
 
-  if (statsLoading || permisLoading) {
-    return <LoadingSkeleton />;
+  // Statuts avec couleurs et icônes
+  const statusConfig = {
+    EN_COURS: { 
+      color: 'border-emerald-500 bg-emerald-50', 
+      label: 'En cours',
+      icon: Clock,
+      textColor: 'text-emerald-700'
+    },
+    VALIDE: { 
+      color: 'border-blue-500 bg-blue-50', 
+      label: 'Validé',
+      icon: CheckCircle,
+      textColor: 'text-blue-700'
+    },
+    SUSPENDU: { 
+      color: 'border-red-500 bg-red-50', 
+      label: 'Suspendu',
+      icon: Ban,
+      textColor: 'text-red-700'
+    },
+    CLOTURE: { 
+      color: 'border-slate-400 bg-slate-50', 
+      label: 'Clôturé',
+      icon: CheckCircle,
+      textColor: 'text-slate-700'
+    },
+    EN_ATTENTE: { 
+      color: 'border-amber-500 bg-amber-50', 
+      label: 'En attente',
+      icon: AlertTriangle,
+      textColor: 'text-amber-700'
+    },
+    BROUILLON: { 
+      color: 'border-gray-400 bg-gray-50', 
+      label: 'Brouillon',
+      icon: AlertCircle,
+      textColor: 'text-gray-700'
+    }
+  };
+
+  // Permis filtrés selon le statut sélectionné
+  const permisFiltered = useMemo(() => {
+    const result = {};
+    Object.entries(permisDataByZone).forEach(([zoneId, permis]) => {
+      if (selectedStatut) {
+        result[zoneId] = permis.filter(p => p.statut === selectedStatut);
+      } else {
+        result[zoneId] = permis;
+      }
+    });
+    return result;
+  }, [permisDataByZone, selectedStatut]);
+
+  // Statistiques globales
+  const stats = useMemo(() => {
+    const allPermis = Object.values(permisFiltered).flat();
+    return {
+      total: allPermis.length,
+      enCours: allPermis.filter(p => p.statut === 'EN_COURS').length,
+      valides: allPermis.filter(p => p.statut === 'VALIDE').length,
+      suspendus: allPermis.filter(p => p.statut === 'SUSPENDU').length
+    };
+  }, [permisFiltered]);
+
+  // Gestion du refresh
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([refetchZones(), refetchPermis()]);
+      toast.success('Données actualisées');
+    } catch (error) {
+      toast.error('Erreur lors de l\'actualisation');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Gestion erreurs
+  if (zonesError) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 flex items-center space-x-4">
+          <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
+          <div>
+            <h3 className="font-semibold text-red-900">Erreur de chargement</h3>
+            <p className="text-red-700 text-sm mt-1">Impossible de récupérer les zones</p>
+          </div>
+          <button
+            onClick={handleRefresh}
+            className="ml-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    );
   }
 
-  // Accès correct aux données retournées par apiClient
-  const globalStats = stats?.data?.statistiques_globales || {};
-  const parZone = stats?.data?.par_zone || [];
-  const parType = stats?.data?.par_type || [];
-  const parMois = stats?.data?.par_mois || [];
-
-  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Bonjour, {user?.prenom} 👋
+        <h1 className="text-4xl font-bold text-slate-900 mb-2">
+          📍 Suivi des Permis par Zone
         </h1>
-        <p className="mt-2 text-sm text-gray-700">
-          Voici un aperçu de l'activité des permis de travail
+        <p className="text-slate-600">
+          Visualisez l'état des permis de travail HSE pour chaque zone de votre site
         </p>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <KPICard
-          title="Total Permis"
-          value={globalStats.total_permis || 0}
-          icon={FileText}
+      {/* Actions Bar */}
+      <div className="bg-white rounded-lg shadow-sm p-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-slate-200">
+        <div className="flex items-center space-x-3 w-full sm:w-auto">
+          <label className="text-sm font-medium text-slate-700">Filtrer par statut:</label>
+          <select
+            value={selectedStatut}
+            onChange={(e) => setSelectedStatut(e.target.value)}
+            className="px-4 py-2 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+          >
+            <option value="">Tous les statuts</option>
+            {Object.entries(statusConfig).map(([key, config]) => (
+              <option key={key} value={key}>{config.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <button
+          onClick={handleRefresh}
+          disabled={isRefreshing || zonesLoading || permisLoading}
+          className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+        >
+          <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+          Actualiser
+        </button>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <StatCard 
+          title="Total Permis" 
+          value={stats.total} 
+          icon={MapPin}
+          color="indigo"
+        />
+        <StatCard 
+          title="En Cours" 
+          value={stats.enCours} 
+          icon={Clock}
+          color="emerald"
+        />
+        <StatCard 
+          title="Validés" 
+          value={stats.valides} 
+          icon={CheckCircle}
           color="blue"
         />
-        <KPICard
-          title="Permis Actifs"
-          value={globalStats.permis_actifs || 0}
-          icon={Clock}
-          color="green"
-          trend="+12%"
-        />
-        <KPICard
-          title="En Attente"
-          value={globalStats.permis_en_attente || 0}
-          icon={AlertTriangle}
-          color="orange"
-        />
-        <KPICard
-          title="Validés"
-          value={globalStats.permis_valides || 0}
-          icon={CheckCircle}
-          color="purple"
+        <StatCard 
+          title="Suspendus" 
+          value={stats.suspendus} 
+          icon={Ban}
+          color="red"
         />
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Line Chart - Evolution */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Évolution sur 12 mois</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={parMois}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="mois" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="nombre_permis" 
-                stroke="#3b82f6" 
-                strokeWidth={2}
-                name="Nombre de permis"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Pie Chart - Par Type */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Répartition par type</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={parType}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ type, percent }) => `${type}: ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="nombre_permis"
-              >
-                {parType.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+      {/* Loading State */}
+      {(zonesLoading || permisLoading) && (
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-sm p-6 border border-slate-200 animate-pulse">
+              <div className="h-6 bg-slate-200 rounded w-1/4 mb-4"></div>
+              <div className="space-y-3">
+                {[...Array(2)].map((_, j) => (
+                  <div key={j} className="h-12 bg-slate-100 rounded"></div>
                 ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Zones Grid */}
+      {!zonesLoading && !permisLoading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {zones.map((zone) => {
+            const zonePermis = permisFiltered[zone.id] || [];
+            return (
+              <ZoneCard 
+                key={zone.id}
+                zone={zone}
+                permis={zonePermis}
+                statusConfig={statusConfig}
+                onSelectPermis={setSelectedPermis}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!zonesLoading && zones.length === 0 && (
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-12 text-center">
+          <MapPin className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+          <p className="text-slate-600">Aucune zone trouvée</p>
+        </div>
+      )}
+
+      {/* Permis Details Modal */}
+      {selectedPermis && (
+        <PermisModal 
+          permis={selectedPermis}
+          statusConfig={statusConfig}
+          onClose={() => setSelectedPermis(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// Composant Zone Card
+function ZoneCard({ zone, permis, statusConfig, onSelectPermis }) {
+  return (
+    <div className="bg-white rounded-2xl shadow-md p-6 border border-slate-200 hover:shadow-lg transition-shadow">
+      {/* Header Zone */}
+      <div className="flex items-start space-x-4 mb-5 pb-4 border-b border-slate-200">
+        <div className="flex-shrink-0 w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+          <Building2 className="w-6 h-6 text-indigo-600" />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-lg font-bold text-slate-900">{zone.nom}</h3>
+          <p className="text-sm text-slate-500 mt-1">{zone.description}</p>
+          <div className="flex items-center space-x-2 mt-2 text-xs text-slate-600">
+            <User className="w-4 h-4" />
+            <span>{zone.responsable_prenom} {zone.responsable_nom}</span>
+          </div>
         </div>
       </div>
 
-      {/* Bar Chart - Par Zone */}
-      <div className="bg-white p-6 rounded-lg shadow mb-8">
-        <h3 className="text-lg font-semibold mb-4">Permis par zone</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={parZone}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="zone" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="nombre_permis" fill="#3b82f6" name="Total" />
-            <Bar dataKey="actifs" fill="#10b981" name="Actifs" />
-          </BarChart>
-        </ResponsiveContainer>
+      {/* Permis List */}
+      <div className="space-y-2">
+        {permis.length === 0 ? (
+          <p className="text-center text-sm text-slate-500 py-4">Aucun permis</p>
+        ) : (
+          permis.map((p) => {
+            const config = statusConfig[p.statut] || statusConfig.BROUILLON;
+            const Icon = config.icon;
+            return (
+              <button
+                key={p.id}
+                onClick={() => onSelectPermis(p)}
+                className={`w-full rounded-lg p-3 border-l-4 shadow-sm hover:shadow-md transition-all text-left ${config.color} hover:scale-105 transform`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <Icon className={`w-4 h-4 flex-shrink-0 ${config.textColor}`} />
+                      <span className="font-semibold text-sm text-slate-900 truncate">
+                        {p.numero_permis}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 mb-2 line-clamp-1">
+                      {p.type_permis_nom}
+                    </p>
+                    <div className="flex items-center space-x-3 text-xs text-slate-700">
+                      <span className="flex items-center space-x-1">
+                        <Calendar className="w-3 h-3" />
+                        <span>{new Date(p.date_debut).toLocaleDateString('fr-FR')}</span>
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight className={`w-4 h-4 flex-shrink-0 ml-2 ${config.textColor}`} />
+                </div>
+              </button>
+            );
+          })
+        )}
       </div>
 
-      {/* Recent Permits Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold">Permis récents</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Numéro
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Titre
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Zone
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Statut
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Date
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {recentPermis?.data?.map((permis) => (
-                <tr 
-                  key={permis.id} 
-                  className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => navigate(`/permis/${permis.id}`)}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                    {permis.numero_permis}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {permis.titre}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {permis.zone_nom}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <StatusBadge status={permis.statut} />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(permis.date_creation).toLocaleDateString('fr-FR')}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* Badge Permis Count */}
+      <div className="mt-4 pt-4 border-t border-slate-200">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+          {permis.length} permis
+        </span>
       </div>
     </div>
   );
 }
 
-function KPICard({ title, value, icon: Icon, color, trend }) {
+// Composant Permis Modal
+function PermisModal({ permis, statusConfig, onClose }) {
+  const config = statusConfig[permis.statut] || statusConfig.BROUILLON;
+  const Icon = config.icon;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
+        {/* Header */}
+        <div className={`rounded-lg p-4 mb-6 ${config.color} flex items-start space-x-3`}>
+          <Icon className={`w-6 h-6 flex-shrink-0 ${config.textColor}`} />
+          <div>
+            <h3 className="font-bold text-lg text-slate-900">{permis.numero_permis}</h3>
+            <p className="text-sm text-slate-600 mt-1">{config.label}</p>
+          </div>
+        </div>
+
+        {/* Details */}
+        <div className="space-y-4 mb-6">
+          <DetailRow label="Type" value={permis.type_permis_nom} />
+          <DetailRow 
+            label="Demandeur" 
+            value={`${permis.demandeur_prenom} ${permis.demandeur_nom}`}
+          />
+          <DetailRow 
+            label="Début" 
+            value={new Date(permis.date_debut).toLocaleDateString('fr-FR')}
+          />
+          <DetailRow 
+            label="Fin" 
+            value={new Date(permis.date_fin).toLocaleDateString('fr-FR')}
+          />
+        </div>
+
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+        >
+          Fermer
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Composant Stat Card
+function StatCard({ title, value, icon: Icon, color }) {
   const colorClasses = {
-    blue: 'bg-blue-500',
-    green: 'bg-green-500',
-    orange: 'bg-orange-500',
-    purple: 'bg-purple-500',
-    red: 'bg-red-500'
+    indigo: 'bg-indigo-50 text-indigo-600',
+    emerald: 'bg-emerald-50 text-emerald-600',
+    blue: 'bg-blue-50 text-blue-600',
+    red: 'bg-red-50 text-red-600'
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow-sm p-4 border border-slate-200">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
-          {trend && (
-            <p className="text-sm text-green-600 mt-2 flex items-center">
-              <TrendingUp className="w-4 h-4 mr-1" />
-              {trend}
-            </p>
-          )}
+          <p className="text-sm font-medium text-slate-600">{title}</p>
+          <p className="text-2xl font-bold text-slate-900 mt-2">{value}</p>
         </div>
-        <div className={`${colorClasses[color]} p-3 rounded-full`}>
-          <Icon className="w-6 h-6 text-white" />
+        <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
+          <Icon className="w-6 h-6" />
         </div>
       </div>
     </div>
   );
 }
 
-function StatusBadge({ status }) {
-  const configs = {
-    BROUILLON: { color: 'gray', label: 'Brouillon' },
-    EN_ATTENTE: { color: 'yellow', label: 'En attente' },
-    VALIDE: { color: 'blue', label: 'Validé' },
-    EN_COURS: { color: 'green', label: 'En cours' },
-    SUSPENDU: { color: 'red', label: 'Suspendu' },
-    CLOTURE: { color: 'gray', label: 'Clôturé' }
-  };
-  
-  const { color, label } = configs[status] || { color: 'gray', label: status };
-  
+// Composant Detail Row
+function DetailRow({ label, value }) {
   return (
-    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-${color}-100 text-${color}-800`}>
-      {label}
-    </span>
-  );
-}
-
-function LoadingSkeleton() {
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="animate-pulse">
-        <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-gray-200 rounded-lg h-32"></div>
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {[...Array(2)].map((_, i) => (
-            <div key={i} className="bg-gray-200 rounded-lg h-80"></div>
-          ))}
-        </div>
-      </div>
+    <div className="flex justify-between">
+      <span className="text-sm font-medium text-slate-600">{label}:</span>
+      <span className="text-sm text-slate-900 font-semibold">{value}</span>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useStatistiques, useExportCSV } from '../../hooks/useReports';
+import { useQuery } from '@tanstack/react-query';
+import apiClient from '../../api/client';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -11,7 +12,8 @@ import {
   TrendingUp, 
   PieChart as PieChartIcon,
   BarChart3,
-  Calendar
+  Calendar,
+  AlertCircle
 } from 'lucide-react';
 import {
   LineChart,
@@ -28,7 +30,7 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
-import { formatNumber } from '../../utils/formatters';
+import { toast } from 'react-toastify';
 
 export default function Reports() {
   const [filters, setFilters] = useState({
@@ -39,53 +41,115 @@ export default function Reports() {
     statut: ''
   });
 
-  const { data: stats, isLoading } = useStatistiques();
-  const exportCSV = useExportCSV();
+  // Récupération des statistiques
+  const { data: statsData, isLoading: statsLoading, error: statsError } = useQuery({
+    queryKey: ['statistics'],
+    queryFn: () => apiClient.get('/reports/statistiques'),
+    staleTime: 5 * 60 * 1000
+  });
 
+  // Récupération des zones (pour le filtre)
+  const { data: zonesData } = useQuery({
+    queryKey: ['zones-select'],
+    queryFn: () => apiClient.get('/zones'),
+    staleTime: 10 * 60 * 1000
+  });
+
+  // Récupération des types de permis (pour le filtre)
+  const { data: typesData } = useQuery({
+    queryKey: ['types-permis-select'],
+    queryFn: () => apiClient.get('/types-permis'),
+    staleTime: 10 * 60 * 1000
+  });
+
+  // Export CSV
   const handleExport = async () => {
-    await exportCSV.mutateAsync(filters);
+    try {
+      const params = new URLSearchParams(
+        Object.fromEntries(
+          Object.entries(filters).filter(([_, v]) => v !== '')
+        )
+      );
+      const response = await apiClient.get(`/reports/export-csv?${params.toString()}`, {
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `rapport-permis-${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      toast.success('Rapport exporté avec succès');
+    } catch (error) {
+      console.error('Erreur export:', error);
+      toast.error(error.response?.data?.message || 'Erreur lors de l\'export');
+    }
   };
 
-  const globalStats = stats?.data?.statistiques_globales || {};
-  const parZone = stats?.data?.par_zone || [];
-  const parType = stats?.data?.par_type || [];
-  const parMois = stats?.data?.par_mois || [];
-  const tempsApprobation = stats?.data?.temps_approbation_moyen || 0;
+  // Extraction des données
+  const stats = statsData?.data?.statistiques_globales || {};
+  const parZone = statsData?.data?.par_zone || [];
+  const parType = statsData?.data?.par_type || [];
+  const parMois = statsData?.data?.par_mois || [];
+  const tempsApprobation = stats?.temps_approbation_moyen || 0;
 
-  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+  // Zones et types pour les filtres
+  const zones = zonesData?.data?.data || zonesData?.data || [];
+  const types = typesData?.data?.data || typesData?.data || [];
 
   // Données pour le pie chart des statuts
   const statutsData = [
-    { name: 'Actifs', value: globalStats.permis_actifs || 0, color: '#10b981' },
-    { name: 'Validés', value: globalStats.permis_valides || 0, color: '#3b82f6' },
-    { name: 'En attente', value: globalStats.permis_en_attente || 0, color: '#f59e0b' },
-    { name: 'Suspendus', value: globalStats.permis_suspendus || 0, color: '#ef4444' },
-    { name: 'Clôturés', value: globalStats.permis_clotures || 0, color: '#6b7280' }
+    { name: 'Actifs', value: stats.permis_actifs || 0, color: '#10b981' },
+    { name: 'Validés', value: stats.permis_valides || 0, color: '#3b82f6' },
+    { name: 'En attente', value: stats.permis_en_attente || 0, color: '#f59e0b' },
+    { name: 'Suspendus', value: stats.permis_suspendus || 0, color: '#ef4444' },
+    { name: 'Clôturés', value: stats.permis_clotures || 0, color: '#6b7280' }
   ].filter(item => item.value > 0);
 
+  // Gestion des erreurs
+  if (statsError) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 flex items-center space-x-4">
+          <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0" />
+          <div>
+            <h3 className="font-semibold text-red-900">Erreur de chargement</h3>
+            <p className="text-red-700 text-sm mt-1">Impossible de récupérer les statistiques</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Rapports et Statistiques</h1>
+          <h1 className="text-3xl font-bold text-gray-900">📊 Rapports et Statistiques</h1>
           <p className="mt-2 text-sm text-gray-700">
-            Analysez l'activité et les tendances des permis de travail
+            Analysez l'activité et les tendances des permis de travail HSE
           </p>
         </div>
         <Button
           variant="primary"
           icon={Download}
           onClick={handleExport}
-          loading={exportCSV.isPending}
+          className="shadow-sm"
         >
-          Exporter les données
+          Exporter en CSV
         </Button>
       </div>
 
       {/* Filters */}
-      <Card title="Filtres de période">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <Card>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Filtres</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <Input
             type="date"
             label="Date de début"
@@ -98,6 +162,44 @@ export default function Reports() {
             value={filters.date_fin}
             onChange={(e) => setFilters({ ...filters, date_fin: e.target.value })}
           />
+          <Select
+            label="Zone"
+            value={filters.zone_id}
+            onChange={(e) => setFilters({ ...filters, zone_id: e.target.value })}
+            options={[
+              { value: '', label: 'Toutes les zones' },
+              ...(zones.map(z => ({
+                value: z.id,
+                label: z.nom
+              })) || [])
+            ]}
+          />
+          <Select
+            label="Type de permis"
+            value={filters.type_permis_id}
+            onChange={(e) => setFilters({ ...filters, type_permis_id: e.target.value })}
+            options={[
+              { value: '', label: 'Tous les types' },
+              ...(types.map(t => ({
+                value: t.id,
+                label: t.nom
+              })) || [])
+            ]}
+          />
+          <Select
+            label="Statut"
+            value={filters.statut}
+            onChange={(e) => setFilters({ ...filters, statut: e.target.value })}
+            options={[
+              { value: '', label: 'Tous les statuts' },
+              { value: 'BROUILLON', label: 'Brouillon' },
+              { value: 'EN_ATTENTE', label: 'En attente' },
+              { value: 'VALIDE', label: 'Validé' },
+              { value: 'EN_COURS', label: 'En cours' },
+              { value: 'SUSPENDU', label: 'Suspendu' },
+              { value: 'CLOTURE', label: 'Clôturé' }
+            ]}
+          />
         </div>
       </Card>
 
@@ -105,38 +207,38 @@ export default function Reports() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard
           title="Total Permis"
-          value={globalStats.total_permis || 0}
+          value={stats.total_permis || 0}
           icon={FileText}
           color="bg-blue-500"
-          loading={isLoading}
+          loading={statsLoading}
         />
         <StatCard
-          title="Actifs"
-          value={globalStats.permis_actifs || 0}
+          title="Permis Actifs"
+          value={stats.permis_actifs || 0}
           icon={TrendingUp}
           color="bg-green-500"
-          loading={isLoading}
+          loading={statsLoading}
         />
         <StatCard
           title="En Attente"
-          value={globalStats.permis_en_attente || 0}
+          value={stats.permis_en_attente || 0}
           icon={Calendar}
           color="bg-yellow-500"
-          loading={isLoading}
+          loading={statsLoading}
         />
         <StatCard
           title="Validés"
-          value={globalStats.permis_valides || 0}
+          value={stats.permis_valides || 0}
           icon={PieChartIcon}
           color="bg-purple-500"
-          loading={isLoading}
+          loading={statsLoading}
         />
         <StatCard
           title="Clôturés"
-          value={globalStats.permis_clotures || 0}
+          value={stats.permis_clotures || 0}
           icon={BarChart3}
           color="bg-gray-500"
-          loading={isLoading}
+          loading={statsLoading}
         />
       </div>
 
@@ -146,7 +248,7 @@ export default function Reports() {
           <div>
             <h3 className="text-sm font-medium text-gray-500">Temps d'approbation moyen</h3>
             <p className="text-3xl font-bold text-gray-900 mt-2">
-              {isLoading ? (
+              {statsLoading ? (
                 <Skeleton width="100px" height="36px" />
               ) : (
                 `${tempsApprobation.toFixed(1)} heures`
@@ -162,9 +264,14 @@ export default function Reports() {
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Evolution par mois */}
-        <Card title="Évolution mensuelle">
-          {isLoading ? (
+        <Card>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Évolution mensuelle</h3>
+          {statsLoading ? (
             <Skeleton height="300px" />
+          ) : parMois.length === 0 ? (
+            <div className="h-80 flex items-center justify-center text-gray-500">
+              Aucune donnée disponible
+            </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={parMois}>
@@ -200,9 +307,14 @@ export default function Reports() {
         </Card>
 
         {/* Répartition par statut */}
-        <Card title="Répartition par statut">
-          {isLoading ? (
+        <Card>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Répartition par statut</h3>
+          {statsLoading ? (
             <Skeleton height="300px" />
+          ) : statutsData.length === 0 ? (
+            <div className="h-80 flex items-center justify-center text-gray-500">
+              Aucune donnée disponible
+            </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -230,9 +342,14 @@ export default function Reports() {
       {/* Charts Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Permis par zone */}
-        <Card title="Distribution par zone">
-          {isLoading ? (
+        <Card>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribution par zone</h3>
+          {statsLoading ? (
             <Skeleton height="300px" />
+          ) : parZone.length === 0 ? (
+            <div className="h-80 flex items-center justify-center text-gray-500">
+              Aucune donnée disponible
+            </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={parZone}>
@@ -248,21 +365,41 @@ export default function Reports() {
                 />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="nombre_permis" fill="#3b82f6" name="Total" radius={[8, 8, 0, 0]} />
-                <Bar dataKey="actifs" fill="#10b981" name="Actifs" radius={[8, 8, 0, 0]} />
-                <Bar dataKey="clotures" fill="#6b7280" name="Clôturés" radius={[8, 8, 0, 0]} />
+                <Bar 
+                  dataKey="nombre_permis" 
+                  fill="#3b82f6" 
+                  name="Total" 
+                  radius={[8, 8, 0, 0]} 
+                />
+                <Bar 
+                  dataKey="actifs" 
+                  fill="#10b981" 
+                  name="Actifs" 
+                  radius={[8, 8, 0, 0]} 
+                />
+                <Bar 
+                  dataKey="clotures" 
+                  fill="#6b7280" 
+                  name="Clôturés" 
+                  radius={[8, 8, 0, 0]} 
+                />
               </BarChart>
             </ResponsiveContainer>
           )}
         </Card>
 
         {/* Permis par type */}
-        <Card title="Distribution par type">
-          {isLoading ? (
+        <Card>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Distribution par type</h3>
+          {statsLoading ? (
             <Skeleton height="300px" />
+          ) : parType.length === 0 ? (
+            <div className="h-80 flex items-center justify-center text-gray-500">
+              Aucune donnée disponible
+            </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={parType} layout="horizontal">
+              <BarChart data={parType} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis type="number" stroke="#6b7280" style={{ fontSize: '12px' }} />
                 <YAxis 
@@ -274,7 +411,12 @@ export default function Reports() {
                 />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="nombre_permis" fill="#8b5cf6" name="Total" radius={[0, 8, 8, 0]} />
+                <Bar 
+                  dataKey="nombre_permis" 
+                  fill="#8b5cf6" 
+                  name="Total" 
+                  radius={[0, 8, 8, 0]} 
+                />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -284,7 +426,8 @@ export default function Reports() {
       {/* Detailed Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Table par zone */}
-        <Card title="Détails par zone">
+        <Card>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Détails par zone</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -296,7 +439,7 @@ export default function Reports() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {isLoading ? (
+                {statsLoading ? (
                   [...Array(5)].map((_, i) => (
                     <tr key={i}>
                       <td className="px-4 py-3"><Skeleton /></td>
@@ -305,18 +448,26 @@ export default function Reports() {
                       <td className="px-4 py-3"><Skeleton /></td>
                     </tr>
                   ))
+                ) : parZone.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="px-4 py-6 text-center text-gray-500">
+                      Aucune donnée
+                    </td>
+                  </tr>
                 ) : (
                   parZone.map((zone, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-900">{zone.zone}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right font-medium">
-                        {formatNumber(zone.nombre_permis)}
+                    <tr key={index} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                        {zone.zone || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-green-600 text-right">
-                        {formatNumber(zone.actifs)}
+                      <td className="px-4 py-3 text-sm text-gray-900 text-right font-semibold">
+                        {zone.nombre_permis || 0}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-green-600 text-right font-semibold">
+                        {zone.actifs || 0}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-500 text-right">
-                        {formatNumber(zone.clotures)}
+                        {zone.clotures || 0}
                       </td>
                     </tr>
                   ))
@@ -327,7 +478,8 @@ export default function Reports() {
         </Card>
 
         {/* Table par type */}
-        <Card title="Détails par type">
+        <Card>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Détails par type</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -339,7 +491,7 @@ export default function Reports() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {isLoading ? (
+                {statsLoading ? (
                   [...Array(5)].map((_, i) => (
                     <tr key={i}>
                       <td className="px-4 py-3"><Skeleton /></td>
@@ -348,18 +500,26 @@ export default function Reports() {
                       <td className="px-4 py-3"><Skeleton /></td>
                     </tr>
                   ))
+                ) : parType.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="px-4 py-6 text-center text-gray-500">
+                      Aucune donnée
+                    </td>
+                  </tr>
                 ) : (
                   parType.map((type, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-900">{type.type}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right font-medium">
-                        {formatNumber(type.nombre_permis)}
+                    <tr key={index} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                        {type.type || '-'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-green-600 text-right">
-                        {formatNumber(type.actifs)}
+                      <td className="px-4 py-3 text-sm text-gray-900 text-right font-semibold">
+                        {type.nombre_permis || 0}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-green-600 text-right font-semibold">
+                        {type.actifs || 0}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-500 text-right">
-                        {formatNumber(type.clotures)}
+                        {type.clotures || 0}
                       </td>
                     </tr>
                   ))
@@ -373,6 +533,9 @@ export default function Reports() {
   );
 }
 
+/**
+ * Composant StatCard - Affiche une statistique avec icône
+ */
 function StatCard({ title, value, icon: Icon, color, loading }) {
   if (loading) {
     return (
@@ -387,7 +550,7 @@ function StatCard({ title, value, icon: Icon, color, loading }) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-500">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-2">{formatNumber(value)}</p>
+          <p className="text-2xl font-bold text-gray-900 mt-2">{value}</p>
         </div>
         <div className={`${color} p-3 rounded-full`}>
           <Icon className="w-6 h-6 text-white" />
