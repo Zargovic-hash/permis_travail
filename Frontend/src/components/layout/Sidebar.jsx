@@ -10,7 +10,8 @@ import {
   BarChart3,
   ScrollText,
   Settings as SettingsIcon,
-  ChevronRight
+  ChevronRight,
+  Search // ✅ NOUVEAU: Icône pour la vérification
 } from 'lucide-react';
 
 export default function Sidebar({ isOpen }) {
@@ -30,6 +31,14 @@ export default function Sidebar({ isOpen }) {
       icon: FileText,
       roles: [],
       badge: null
+    },
+    // ✅ NOUVEAU: Lien de vérification (public)
+    {
+      name: 'Vérifier un Permis',
+      path: '/verify',
+      icon: Search,
+      roles: [], // Accessible à tous
+      isPublic: true // Marqueur pour les routes publiques
     },
     {
       name: 'Zones',
@@ -111,15 +120,34 @@ export default function Sidebar({ isOpen }) {
                         active
                           ? 'bg-indigo-50 text-indigo-700 shadow-sm'
                           : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                      } ${
+                        // ✅ Style spécial pour le lien de vérification
+                        item.isPublic && !active
+                          ? 'bg-amber-50/50 hover:bg-amber-50'
+                          : ''
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <Icon className={`w-4 h-4 ${active ? 'text-indigo-600' : 'text-slate-500'}`} />
+                        <Icon 
+                          className={`w-4 h-4 ${
+                            active 
+                              ? 'text-indigo-600' 
+                              : item.isPublic 
+                                ? 'text-amber-600'
+                                : 'text-slate-500'
+                          }`} 
+                        />
                         <span className="leading-tight">{item.name}</span>
                       </div>
                       {item.badge && (
                         <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold rounded-full bg-rose-100 text-rose-700">
                           {item.badge}
+                        </span>
+                      )}
+                      {/* ✅ Badge "Public" pour la vérification */}
+                      {item.isPublic && !active && (
+                        <span className="inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-700">
+                          Public
                         </span>
                       )}
                       {active && (

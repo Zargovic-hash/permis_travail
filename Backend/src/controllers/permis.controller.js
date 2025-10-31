@@ -270,14 +270,28 @@ class PermisController {
     }
   }
 
-// Remplacer les méthodes exportPDF et verifierPDF dans permis.controller.js
+// ========== PROBLÈME 1 & 2: Fix Export PDF & Verification ==========
 
 async exportPDF(req, res, next) {
   try {
     console.log('📄 Export PDF permis:', req.params.id);
     
+    // ✅ Récupérer le permis
+    const permis = await permisRepository.findById(req.params.id);
+    if (!permis) {
+      return res.status(404).json({
+        success: false,
+        message: 'Permis non trouvé'
+      });
+    }
+    
     // ✅ Générer le PDF avec le nouveau service
     const { buffer, hash } = await pdfService.genererPDFPermis(req.params.id);
+    
+    // ✅ Vérifier que le buffer est valide
+    if (!buffer || buffer.length === 0) {
+      throw new Error('PDF buffer est vide - le PDF n\'a pas été généré correctement');
+    }
     
     // ✅ Enregistrer dans l'audit log
     await auditLogRepository.create({
@@ -292,19 +306,27 @@ async exportPDF(req, res, next) {
       ip_client: req.ip
     });
 
-    // ✅ Récupérer le permis pour le nom de fichier
-    const permis = await permisRepository.findById(req.params.id);
+    // ✅ Nom du fichier
     const filename = `Permis-${permis.numero_permis}.pdf`;
 
-    // ✅ Envoyer le PDF avec les bons headers
+    // ✅ CRITICAL: Headers corrects pour forcer le téléchargement
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.setHeader('Content-Length', buffer.length);
-    res.setHeader('X-PDF-Hash', hash); // Hash pour vérification côté client
+    res.setHeader('X-PDF-Hash', hash);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     
-    res.send(buffer);
+    // ✅ Envoyer le buffer CORRECTEMENT
+    res.status(200).send(buffer);
     
-    console.log('✅ PDF exporté avec succès:', filename);
+    console.log('✅ PDF exporté avec succès:', {
+      filename,
+      taille: buffer.length,
+      hash: hash.substring(0, 16) + '...'
+    });
+    
   } catch (error) {
     console.error('❌ Erreur export PDF:', error.message);
     console.error('Stack:', error.stack);
@@ -313,6 +335,92 @@ async exportPDF(req, res, next) {
       success: false,
       message: 'Erreur lors de l\'export PDF',
       error: error.message
+    });
+  }
+}
+
+async verifierPDF(req, res, next) {
+  try {
+    console.log('');
+    console.log('┌─────────────────────────────────────────────────────┐');
+    console.log('│   🔍 CONTROLLER: verifierPDF                        │');
+    console.log('└─────────────────────────────────────────────────────┘');
+    
+    // ✅ Récupérer le permis d'abord
+    const permis = await permisRepository.findById(req.params.id);
+    if (!permis) {
+      return res.status(404).json({
+        success: false,
+        message: 'Permis non trouvé',
+        data: {
+          isValid: false,
+          details: { error: 'Permis inexistant' }
+        }
+      });
+    }
+
+    console.log('📋 Permis trouvé:', {
+      id: permis.id,
+      numero: permis.numero_permis,
+      statut: permis.statut
+    });
+
+    // ✅ Appeler le service de vérification
+    const verification = await pdfService.verifierIntegritePDF(req.params.id);
+    
+    console.log('📤 Résultat du service:', JSON.stringify(verification, null, 2));
+
+    // ✅ Enregistrer dans l'audit log
+    await auditLogRepository.create({
+      action: 'VERIFICATION_PDF_PERMIS',
+      utilisateur_id: req.user.id,
+      cible_table: 'permis',
+      cible_id: req.params.id,
+      payload: { 
+        resultat: verification.isValid ? 'VALIDE' : 'INVALIDE',
+        details: verification.details
+      },
+      ip_client: req.ip
+    });
+
+    // ✅ Construire la réponse CORRECTEMENT
+    const responsePayload = {
+      success: true,
+      message: verification.isValid 
+        ? '✅ PDF vérifié - Intégrité confirmée' 
+        : '⚠️ Problèmes détectés lors de la vérification',
+      data: {
+        isValid: verification.isValid === true,
+        details: verification.details || {}
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    console.log('📨 Réponse envoyée:', JSON.stringify(responsePayload, null, 2));
+    console.log('📊 Status Code: 200');
+    console.log('');
+
+    // ✅ TOUJOURS retourner 200 (pas 400)
+    res.status(200).json(responsePayload);
+    
+  } catch (error) {
+    console.error('');
+    console.error('┌─────────────────────────────────────────────────────┐');
+    console.error('│   ❌ ERREUR DANS CONTROLLER                         │');
+    console.error('└─────────────────────────────────────────────────────┘');
+    console.error('Message:', error.message);
+    console.error('Stack:', error.stack);
+    console.error('');
+    
+    // ✅ Retourner une erreur STRUCTURÉE
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la vérification du PDF',
+      error: error.message,
+      data: {
+        isValid: false,
+        details: { error: error.message }
+      }
     });
   }
 }

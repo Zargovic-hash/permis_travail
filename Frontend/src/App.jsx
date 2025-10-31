@@ -16,6 +16,9 @@ const Register = lazy(() => import('./pages/auth/Register'));
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'));
 
+// ✅ NOUVEAU: Page de vérification
+const VerifyPermis = lazy(() => import('./pages/verify/VerifyPermis'));
+
 // Placeholder pages (à créer dans les prochaines parties)
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const PermisList = lazy(() => import('./pages/permis/PermisList'));
@@ -72,6 +75,9 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              
+              {/* ✅ NOUVEAU: Route PUBLIC de vérification (Sans authentification) */}
+              <Route path="/verify" element={<VerifyPermis />} />
 
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>

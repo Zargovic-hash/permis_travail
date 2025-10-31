@@ -50,6 +50,8 @@ app.use('/api/types-permis', typePermisRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/admin', adminRoutes);
+const verificationRoutes = require('./routes/verification.routes');
+app.use('/api/verify', verificationRoutes);
 
 // Static files for uploads
 app.use('/uploads', express.static('uploads'));
